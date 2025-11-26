@@ -111,3 +111,8 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR,'src/static')
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 django_heroku.settings(locals())
+
+
+if 'DYNO' in os.environ:
+    import django_heroku
+    django_heroku.settings(locals())
