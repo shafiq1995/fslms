@@ -1,0 +1,684 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Admin Registration{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --admin-primary: #dc3545;
+        --admin-primary-dark: #c82333;
+        --admin-secondary: #2c3e50;
+        --admin-accent: #e74c3c;
+        --admin-light: #f8f9fa;
+        --admin-dark: #1a1a1a;
+        --admin-gradient: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        --admin-gradient-secondary: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        --admin-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        --admin-shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+
+
+    .admin-register-container {
+        min-height: 100vh;
+        display: flex;
+        background: var(--admin-light);
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Left Panel - Admin Information */
+    .admin-info-panel {
+        flex: 1;
+        background: var(--admin-gradient-secondary);
+        color: white;
+        padding: 3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .admin-info-panel::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" opacity="0.05"><polygon fill="white" points="0,0 1000,1000 0,1000"/></svg>');
+        background-size: cover;
+    }
+
+    .admin-info-content {
+        max-width: 500px;
+        position: relative;
+        z-index: 2;
+        animation: fadeInLeft 0.8s ease-out;
+    }
+
+    .admin-logo {
+        margin-bottom: 2.5rem;
+    }
+
+    .admin-logo a {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: white;
+        text-decoration: none;
+        letter-spacing: 1px;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .admin-tagline {
+        font-size: 2.25rem;
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 1.5rem;
+    }
+
+    .admin-description {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        line-height: 1.6;
+        margin-bottom: 2.5rem;
+    }
+
+    .admin-features {
+        margin-bottom: 3rem;
+    }
+
+    .admin-feature {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .admin-feature-icon {
+        width: 50px;
+        height: 50px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        flex-shrink: 0;
+    }
+
+    .admin-feature-text {
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+
+    .admin-security {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.5rem;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        border-left: 4px solid var(--admin-primary);
+    }
+
+    .admin-security-icon {
+        font-size: 2rem;
+        color: #4ecdc4;
+    }
+
+    .admin-security-text {
+        font-size: 0.95rem;
+        opacity: 0.9;
+    }
+
+    /* Right Panel - Registration Form */
+    .admin-form-panel {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        position: relative;
+    }
+
+    .admin-form-container {
+        max-width: 480px;
+        width: 100%;
+        animation: fadeInUp 0.8s ease-out;
+    }
+
+    .admin-form-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .admin-form-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: var(--admin-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+    }
+
+    .admin-form-subtitle {
+        color: var(--admin-secondary);
+        font-size: 1.1rem;
+        opacity: 0.8;
+    }
+
+    .admin-form-card {
+        background: white;
+        padding: 2.5rem;
+        border-radius: 20px;
+        box-shadow: var(--admin-shadow-lg);
+        border: 1px solid rgba(220, 53, 69, 0.1);
+        position: relative;
+    }
+
+    .admin-form-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--admin-gradient);
+        border-radius: 20px 20px 0 0;
+    }
+
+    .alert {
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
+        border: none;
+        display: flex;
+        align-items: center;
+        font-weight: 500;
+    }
+
+    .alert-danger {
+        background: rgba(220, 53, 69, 0.1);
+        color: var(--admin-primary);
+        border: 1px solid rgba(220, 53, 69, 0.2);
+    }
+
+    .alert-info {
+        background: rgba(44, 62, 80, 0.1);
+        color: var(--admin-secondary);
+        border: 1px solid rgba(44, 62, 80, 0.2);
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--admin-secondary);
+        font-size: 0.95rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: .5rem .7rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: var(--admin-light);
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--admin-primary);
+        box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+        background: white;
+    }
+
+    .form-text {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-top: 0.5rem;
+    }
+
+    .text-danger {
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+        display: block;
+    }
+
+    .btn-admin-register {
+        width: 100%;
+        padding: 1rem 2rem;
+        background: var(--admin-gradient);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin: 2rem 0 1.5rem;
+    }
+
+    .btn-admin-register:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(220, 53, 69, 0.3);
+    }
+
+    .btn-admin-register:active {
+        transform: translateY(0);
+    }
+
+    .admin-login-link {
+        text-align: center;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .admin-login-text {
+        color: var(--admin-secondary);
+        font-size: 0.95rem;
+    }
+
+    .admin-login-text a {
+        color: var(--admin-primary);
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .admin-login-text a:hover {
+        color: var(--admin-primary-dark);
+        text-decoration: underline;
+    }
+
+    /* Floating Elements */
+    .floating-elements {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .floating-element {
+        position: absolute;
+        border-radius: 50%;
+        background: var(--admin-gradient);
+        opacity: 0.1;
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .floating-element:nth-child(1) {
+        width: 120px;
+        height: 120px;
+        top: 10%;
+        left: 10%;
+        animation-delay: 0s;
+    }
+
+    .floating-element:nth-child(2) {
+        width: 80px;
+        height: 80px;
+        top: 70%;
+        left: 80%;
+        animation-delay: 2s;
+    }
+
+    .floating-element:nth-child(3) {
+        width: 100px;
+        height: 100px;
+        top: 80%;
+        left: 15%;
+        animation-delay: 4s;
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes float {
+        0%, 100% {
+            transform: translateY(0) rotate(0deg);
+        }
+        50% {
+            transform: translateY(-20px) rotate(10deg);
+        }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+        .admin-register-container {
+            flex-direction: column;
+        }
+
+        .admin-info-panel {
+            padding: 2rem;
+        }
+
+        .admin-tagline {
+            font-size: 2rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .admin-form-panel {
+            padding: 1rem;
+        }
+
+        .admin-form-card {
+            padding: 2rem;
+        }
+
+        .admin-info-panel {
+            padding: 1.5rem;
+        }
+
+        .admin-tagline {
+            font-size: 1.75rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .admin-form-card {
+            padding: 1.5rem;
+        }
+
+        .admin-form-title {
+            font-size: 2rem;
+        }
+
+        .admin-tagline {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+
+<div class="admin-register-container">
+    <!-- Floating Elements -->
+    <div class="floating-elements">
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+    </div>
+
+    <!-- Left Panel - Admin Information -->
+    <div class="admin-info-panel">
+        <div class="admin-info-content">
+            <div class="admin-logo">
+                <a href="{% url 'home:home' %}">
+                    <i class="bi bi-shield-lock"></i> Future Skill Admin
+                </a>
+            </div>
+
+            <h1 class="admin-tagline">Administrative Portal Access</h1>
+            <p class="admin-description">
+                Register for administrative access to manage courses, users, and system configurations.
+                This portal provides comprehensive control over the learning management system.
+            </p>
+
+            <div class="admin-features">
+                <div class="admin-feature">
+                    <div class="admin-feature-icon">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <div class="admin-feature-text">
+                        <strong>User Management</strong> - Manage students, instructors, and administrative staff
+                    </div>
+                </div>
+
+                <div class="admin-feature">
+                    <div class="admin-feature-icon">
+                        <i class="bi bi-book"></i>
+                    </div>
+                    <div class="admin-feature-text">
+                        <strong>Course Oversight</strong> - Monitor and manage all course content and enrollments
+                    </div>
+                </div>
+
+                <div class="admin-feature">
+                    <div class="admin-feature-icon">
+                        <i class="bi bi-graph-up"></i>
+                    </div>
+                    <div class="admin-feature-text">
+                        <strong>Analytics & Reports</strong> - Access comprehensive system analytics and reporting
+                    </div>
+                </div>
+
+                <div class="admin-feature">
+                    <div class="admin-feature-icon">
+                        <i class="bi bi-gear"></i>
+                    </div>
+                    <div class="admin-feature-text">
+                        <strong>System Configuration</strong> - Configure platform settings and preferences
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-security">
+                <i class="bi bi-shield-check admin-security-icon"></i>
+                <div class="admin-security-text">
+                    <strong>Enhanced Security:</strong> All administrative accounts require verification and
+                    include multi-layer security protocols to protect system integrity.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Panel - Registration Form -->
+    <div class="admin-form-panel">
+        <div class="admin-form-container">
+            <div class="admin-form-header">
+                <h1 class="admin-form-title">
+                    <i class="bi bi-shield-lock"></i> Admin Registration
+                </h1>
+                <p class="admin-form-subtitle">Create your administrative account</p>
+            </div>
+
+            <div class="admin-form-card">
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags|default:'info' }}">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        <span>{{ message }}</span>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            {% for err in form.non_field_errors %}
+                                {{ err }}<br>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    {% for field in form %}
+                        <div class="form-group">
+                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                            {{field}}
+                            {% if field.help_text %}
+                                <small class="form-text">{{ field.help_text }}</small>
+                            {% endif %}
+                            {% for error in field.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                            {% if field.name == "email" %}
+                            <div class="d-flex align-items-center gap-2 mt-2">
+                                <button type="button" id="send-code-btn" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-envelope"></i> Send verification code
+                                </button>
+                                <small id="code-status" class="text-muted"></small>
+                            </div>
+                            <div class="mt-2">
+                                <label class="form-label" for="verification_code">Verification code</label>
+                                <input type="text" name="verification_code" id="verification_code" class="form-control" placeholder="Enter the 6-digit code" required>
+                            </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+
+                    <button type="submit" class="btn-admin-register">
+                        <i class="bi bi-person-plus"></i> Register Admin Account
+                    </button>
+                </form>
+
+                <div class="admin-login-link">
+                    <p class="admin-login-text">
+                        Already an admin? <a href="{% url 'accounts:login' %}">Login here</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const registerForm = document.querySelector('form');
+    const registerBtn = document.querySelector('.btn-admin-register');
+    const sendCodeBtn = document.getElementById('send-code-btn');
+    const codeStatus = document.getElementById('code-status');
+    const emailInput = document.querySelector('input[name="email"]');
+
+    if (registerForm) {
+        registerForm.addEventListener('submit', function(e) {
+            if (registerBtn) {
+                const originalText = registerBtn.innerHTML;
+                registerBtn.innerHTML = '<i class="bi bi-arrow-repeat spinner"></i> Creating Account...';
+                registerBtn.disabled = true;
+
+                setTimeout(() => {
+                    registerBtn.innerHTML = originalText;
+                    registerBtn.disabled = false;
+                }, 5000);
+            }
+        });
+    }
+
+    // Add floating animation style
+    const style = document.createElement('style');
+    style.textContent = `
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Add input focus effects
+    const inputs = document.querySelectorAll('.form-control');
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.style.transform = 'translateY(-2px)';
+            this.style.boxShadow = '0 5px 15px rgba(220, 53, 69, 0.1)';
+        });
+
+        input.addEventListener('blur', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = 'none';
+        });
+    });
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    if (sendCodeBtn && emailInput) {
+        sendCodeBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const email = emailInput.value.trim();
+            if (!email) {
+                codeStatus.textContent = 'Enter your email first.';
+                codeStatus.className = 'text-danger small';
+                return;
+            }
+            sendCodeBtn.disabled = true;
+            codeStatus.textContent = 'Sending...';
+            codeStatus.className = 'text-muted small';
+
+            fetch('{% url "accounts:send_email_code" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: new URLSearchParams({email})
+            }).then(resp => resp.json())
+              .then(data => {
+                if (data.success) {
+                    codeStatus.textContent = 'Verification code sent. Check your email.';
+                    codeStatus.className = 'text-success small';
+                } else {
+                    codeStatus.textContent = data.error || 'Could not send code.';
+                    codeStatus.className = 'text-danger small';
+                }
+              })
+              .catch(() => {
+                codeStatus.textContent = 'Could not send code.';
+                codeStatus.className = 'text-danger small';
+              })
+              .finally(() => {
+                setTimeout(() => { sendCodeBtn.disabled = false; }, 1500);
+              });
+        });
+    }
+});
+</script>
+{% endblock %}

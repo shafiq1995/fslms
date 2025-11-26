@@ -1,0 +1,103 @@
+<div class="card shadow-sm">
+  <div class="card-body p-0">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>#</th>
+          <th>Username</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Date Joined</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr id="row-{{ u.id }}">
+          <td>{{ forloop.counter }}</td>
+          <td>{{ u.username }}</td>
+          <td>{{ u.email }}</td>
+          <td>
+            {% if u.role == 'admin' %}
+              <span class="badge bg-danger">Admin</span>
+            {% elif u.role == 'instructor' %}
+              <span class="badge bg-info text-dark">Instructor</span>
+            {% else %}
+              <span class="badge bg-success">Student</span>
+            {% endif %}
+          </td>
+          <td>
+            <span id="status-{{ u.id }}" class="badge {% if u.is_active %}bg-success{% else %}bg-secondary{% endif %}">
+              {% if u.is_active %}Active{% else %}Inactive{% endif %}
+            </span>
+          </td>
+          <td>{{ u.date_joined|date:"d M, Y" }}</td>
+          <td class="text-end">
+            <div class="btn-group">
+              <a href="{% url 'admin_tools:user_edit' u.id %}" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-pencil-square"></i> Edit
+              </a>
+              <a href="{% url 'admin_tools:user_profile' u.id %}" class="btn btn-sm btn-outline-info">
+                <i class="bi bi-eye"></i> View
+              </a>
+              <form action="{% url 'admin_tools:toggle_user_status' u.id %}" method="post" class="d-inline">
+                {% csrf_token %}
+                {% if u.is_active %}
+                  <button type="submit" class="btn btn-sm btn-outline-danger" title="Deactivate User">
+                    <i class="bi bi-person-x"></i> Deactivate
+                  </button>
+                {% else %}
+                  <button type="submit" class="btn btn-sm btn-outline-success" title="Activate User">
+                    <i class="bi bi-person-check"></i> Activate
+                  </button>
+                {% endif %}
+              </form>
+<!--              <button class="btn btn-sm {% if u.is_active %}btn-warning{% else %}btn-success{% endif %} toggle-status-btn"-->
+<!--                      data-id="{{ u.id }}"-->
+<!--                      data-active="{{ u.is_active|yesno:'true,false' }}">-->
+<!--                {% if u.is_active %}Deactivate{% else %}Activate{% endif %}-->
+<!--              </button>-->
+              <a href="{% url 'admin_tools:user_delete' u.id %}" class="btn btn-sm btn-danger"
+                 onclick="return confirm('Are you sure?');">Delete</a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="text-center text-muted py-3">No users found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  {% if page_obj.paginator.num_pages > 1 %}
+  <div class="card-footer bg-light">
+    <nav aria-label="Pagination" class="d-flex justify-content-center my-2">
+      <ul class="pagination mb-0">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+          <a href="?page={{ page_obj.previous_page_number }}" class="page-link page-btn">&laquo; Prev</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled"><span class="page-link">&laquo; Prev</span></li>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+          {% if page_obj.number == num %}
+          <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+          {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+          <li class="page-item"><a href="?page={{ num }}" class="page-link page-btn">{{ num }}</a></li>
+          {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <li class="page-item"><a href="?page={{ page_obj.next_page_number }}" class="page-link page-btn">Next &raquo;</a></li>
+        {% else %}
+        <li class="page-item disabled"><span class="page-link">Next &raquo;</span></li>
+        {% endif %}
+      </ul>
+    </nav>
+  </div>
+  {% endif %}
+</div>

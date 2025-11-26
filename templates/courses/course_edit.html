@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Edit Course | {{ course.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+  <div class="card shadow-sm border-0">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">
+        <i class="bi bi-pencil-square"></i> Edit Course: {{ course.title }}
+      </h5>
+      <a href="{% url 'courses:course_detail' course.id %}" class="btn btn-light btn-sm">
+        <i class="bi bi-arrow-left"></i> Back to Course
+      </a>
+    </div>
+
+    <div class="card-body">
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} mt-2">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+
+      <form method="post" enctype="multipart/form-data" class="mt-3">
+        {% csrf_token %}
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Title</label>
+            {{ form.title }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Category</label>
+            {{ form.category }}
+          </div>
+
+          <div class="col-md-12">
+            <label class="form-label fw-bold">Description</label>
+            {{ form.description }}
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Price (USD)</label>
+            {{ form.price }}
+          </div>
+          {% if can_edit_status %}
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Status</label>
+            {{ form.status }}
+          </div>
+          {% else %}
+          <div class="col-md-6">
+            <label class="form-label fw-bold">Status</label><br>
+            <span class="badge bg-secondary text-uppercase">{{ course.status }}</span>
+            {% if course.status in "draft rejected" %}
+              <p class="text-muted small mb-0">Saving will resubmit for approval.</p>
+            {% endif %}
+          </div>
+          {% endif %}
+
+          <div class="col-md-12">
+            <label class="form-label fw-bold">Thumbnail</label><br>
+            {% if course.thumbnail %}
+              <img src="{{ course.thumbnail.url }}" class="img-thumbnail mb-2" width="150" alt="Course Thumbnail">
+            {% endif %}
+            {{ form.thumbnail }}
+          </div>
+        </div>
+
+        <div class="mt-4 text-end">
+          <button type="submit" class="btn btn-success px-4">
+            <i class="bi bi-save"></i> Save Changes
+          </button>
+          <a href="{% url 'courses:course_list' %}" class="btn btn-secondary">
+            Cancel
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

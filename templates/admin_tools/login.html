@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Admin Login{% endblock %}
+{% block content %}
+<div class="container mt-5" style="max-width: 450px;">
+  <h3 class="text-center mb-4">Admin Login</h3>
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-danger">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+  <form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label>Username</label>
+      <input type="text" name="username" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label>Password</label>
+      <input type="password" name="password" class="form-control" required>
+    </div>
+    <button type="submit" class="btn btn-dark w-100">Login</button>
+  </form>
+  <p class="text-center mt-3"><a href="{% url 'accounts:password_reset' %}">Forgot Password?</a></p>
+</div>
+{% endblock %}

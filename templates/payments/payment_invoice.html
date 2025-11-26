@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Payment Invoice #{{ payment.id }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+      <h3 class="fw-bold mb-4"><i class="bi bi-receipt"></i> Payment Invoice</h3>
+
+      <div class="row">
+        <div class="col-md-6">
+          <p><strong>Student:</strong> {{ payment.user.get_full_name|default:payment.user.username }}</p>
+          <p><strong>Email:</strong> {{ payment.user.email }}</p>
+        </div>
+        <div class="col-md-6 text-end">
+          <p><strong>Date:</strong> {{ payment.created_at|date:"d M, Y H:i" }}</p>
+          <p><strong>Status:</strong>
+            {% if payment.status == "Completed" %}
+              <span class="badge bg-success">{{ payment.status }}</span>
+            {% elif payment.status == "Pending" %}
+              <span class="badge bg-warning text-dark">{{ payment.status }}</span>
+            {% elif payment.status == "Rejected" %}
+              <span class="badge bg-danger">{{ payment.status }}</span>
+            {% elif payment.status == "Refunded" %}
+              <span class="badge bg-info text-dark">{{ payment.status }}</span>
+            {% else %}
+              <span class="badge bg-secondary">{{ payment.status }}</span>
+            {% endif %}
+          </p>
+        </div>
+      </div>
+
+      <hr>
+
+      <p><strong>Course:</strong> {{ payment.course.title }}</p>
+      <p><strong>Amount:</strong> &#2547;{{ payment.amount }}</p>
+      <p><strong>Payment Method:</strong> {{ payment.get_provider_display }}</p>
+      <p><strong>Transaction ID:</strong> <code>{{ payment.provider_tx_id }}</code></p>
+
+      {% if payment.approved_by %}
+      <p><strong>Approved By:</strong> {{ payment.approved_by.get_full_name|default:payment.approved_by.username }}</p>
+      {% endif %}
+      <a href="{% url 'payments:payment_invoice_pdf' payment.id %}" class="btn btn-outline-primary mt-3">
+        <i class="bi bi-file-earmark-pdf"></i> Download PDF
+      </a>
+      <div class="text-center mt-4">
+        <button class="btn btn-outline-secondary" onclick="window.print()"><i class="bi bi-printer"></i> Print Invoice</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

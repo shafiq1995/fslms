@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Student Profile - {{ student.get_full_name|default:student.username }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <h3 class="fw-bold text-primary mb-1"><i class="bi bi-person"></i> {{ student.get_full_name|default:student.username }}</h3>
+      <p class="text-muted mb-0">{{ student.email|default:"No email provided" }}</p>
+    </div>
+    <a href="{% url 'instructor_tool:course_students' course.id %}" class="btn btn-outline-secondary">
+      <i class="bi bi-arrow-left"></i> Back to Students
+    </a>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="fw-bold mb-3">Profile</h5>
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item"><strong>Username:</strong> {{ student.username }}</li>
+            <li class="list-group-item"><strong>Full Name:</strong> {{ student.get_full_name|default:"—" }}</li>
+            <li class="list-group-item"><strong>Email:</strong> {{ student.email|default:"—" }}</li>
+            <li class="list-group-item"><strong>Phone:</strong> {% if profile %}{{ profile.phone|default:"—" }}{% else %}—{% endif %}</li>
+            <li class="list-group-item"><strong>City:</strong> {% if profile %}{{ profile.city|default:"—" }}{% else %}—{% endif %}</li>
+            <li class="list-group-item"><strong>Country:</strong> {% if profile %}{{ profile.country|default:"—" }}{% else %}—{% endif %}</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="fw-bold mb-3">Course Enrollment</h5>
+          <p class="mb-1"><strong>Course:</strong> {{ course.title }}</p>
+          <p class="mb-1"><strong>Enrolled:</strong> {{ enrollment.date_enrolled|date:"M d, Y" }}</p>
+          <p class="mb-2"><strong>Progress:</strong></p>
+          <div class="progress" style="height: 16px;">
+            <div class="progress-bar bg-success" style="width: {{ enrollment.progress|default:0 }}%">
+              {{ enrollment.progress|default:0 }}%
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

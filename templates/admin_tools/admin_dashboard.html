@@ -1,0 +1,740 @@
+{# templates/admin_tools/admin_dashboard.html #}
+{% extends "base.html" %}
+{# include admin header partial if you use it #}
+{% include "partials/header_admin.html" %}
+{% load static %}
+{% block title %}Admin Dashboard{% endblock %}
+
+
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'admin_tools/css/admin_dashboard.css' %}">
+
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<div class="container-fluid admin-dashboard">
+  <!-- Header Section -->
+  <div class="dashboard-header mb-4">
+    <div class="row align-items-center">
+      <div class="col-md-8">
+        <h1 class="mb-1 fw-bold text-primary">Admin Dashboard</h1>
+        <p class="text-muted mb-0">Welcome back! Here's an overview of your platform</p>
+      </div>
+      <div class="col-md-4 text-md-end">
+        <div class="btn-group">
+          <button class="btn btn-outline-primary"><i class="fas fa-download me-2"></i>Export</button>
+          <button class="btn btn-primary"><i class="fas fa-sync-alt me-2"></i>Refresh</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-sm-6 col-md-3">
+      <div class="card stat-card user-card shadow-sm h-100">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <h6 class="card-subtitle text-muted">Total Users</h6>
+              <h2 class="stat-value fw-bold mt-2">{{ total_users }}</h2>
+              <div class="mt-3">
+                <span class="badge bg-light text-dark">
+                  <i class="fas fa-user-graduate me-1"></i> {{ total_students }} Students
+                </span>
+                <span class="badge bg-light text-dark ms-1">
+                  <i class="fas fa-chalkboard-teacher me-1"></i> {{ total_instructors }} Instructors
+                </span>
+              </div>
+            </div>
+            <div class="icon-circle bg-primary bg-opacity-10">
+              <i class="fas fa-users text-primary"></i>
+            </div>
+          </div>
+          <div class="progress mt-3" style="height: 4px;">
+            <div class="progress-bar bg-primary" role="progressbar" style="width: 75%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-md-3">
+      <div class="card stat-card course-card shadow-sm h-100">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <h6 class="card-subtitle text-muted">Active Courses</h6>
+              <h2 class="stat-value fw-bold mt-2">{{ active_courses }}</h2>
+              <div class="mt-3">
+                <span class="badge bg-warning text-dark">
+                  {{ pending_courses }} Pending
+                </span>
+              </div>
+            </div>
+            <div class="icon-circle bg-success bg-opacity-10">
+              <i class="fas fa-book-open text-success"></i>
+            </div>
+          </div>
+          <div class="progress mt-3" style="height: 4px;">
+            <div class="progress-bar bg-success" role="progressbar" style="width: 60%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-md-3">
+      <div class="card stat-card payment-card shadow-sm h-100">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <h6 class="card-subtitle text-muted">Pending Payments</h6>
+              <h2 class="stat-value fw-bold mt-2">{{ pending_payments }}</h2>
+              <div class="mt-3">
+                <span class="text-muted small">Recent transactions shown below</span>
+              </div>
+            </div>
+            <div class="icon-circle bg-warning bg-opacity-10">
+              <i class="fas fa-money-bill-wave text-warning"></i>
+            </div>
+          </div>
+          <div class="progress mt-3" style="height: 4px;">
+            <div class="progress-bar bg-warning" role="progressbar" style="width: 45%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-md-3">
+      <div class="card stat-card revenue-card shadow-sm h-100">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <h6 class="card-subtitle text-muted">Revenue</h6>
+              <h2 class="stat-value fw-bold mt-2">{{ total_revenue }} ৳</h2>
+              <div class="mt-3">
+                <span class="badge bg-info">
+                  <i class="fas fa-certificate me-1"></i> {{ total_certificates }} Certificates
+                </span>
+              </div>
+            </div>
+            <div class="icon-circle bg-info bg-opacity-10">
+              <i class="fas fa-chart-line text-info"></i>
+            </div>
+          </div>
+          <div class="progress mt-3" style="height: 4px;">
+            <div class="progress-bar bg-info" role="progressbar" style="width: 85%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <canvas style="max-height: 200px" id="revenueChart"></canvas>
+  <!-- Pending Courses Queue -->
+  <div class="row mt-4 g-3">
+    <div class="col-12">
+      <div class="card shadow-sm h-100">
+        <div class="card-header d-flex justify-content-between align-items-center bg-transparent border-bottom">
+          <h5 class="mb-0 fw-bold"><i class="fas fa-clipboard-list text-primary me-2"></i>Pending Course Approvals</h5>
+          <a class="btn btn-sm btn-outline-primary" href="{% url 'admin_tools:course_approval' %}">
+            <i class="fas fa-external-link-alt me-1"></i> Review Queue
+          </a>
+        </div>
+        <div class="card-body p-0">
+          {% if pending_courses_queue %}
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Course</th>
+                  <th>Instructor</th>
+                  <th>Submitted</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for c in pending_courses_queue %}
+                <tr>
+                  <td>{{ c.title }}</td>
+                  <td>{{ c.instructor.get_full_name|default:c.instructor.username }}</td>
+                  <td>{{ c.created_at|date:"M d, Y" }}</td>
+                  <td class="text-end">
+                    <form method="post" action="{% url 'admin_tools:approve_course' c.id %}" class="d-inline admin-approve-form">
+                      {% csrf_token %}
+                      <button class="btn btn-success btn-sm">Approve</button>
+                    </form>
+                    <form method="post" action="{% url 'admin_tools:reject_course' c.id %}" class="d-inline admin-reject-form">
+                      {% csrf_token %}
+                      <input type="hidden" name="note" value="">
+                      <button class="btn btn-outline-danger btn-sm">Reject</button>
+                    </form>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% if pending_courses_queue.has_other_pages %}
+          <div class="card-footer bg-white py-2">
+            <nav>
+              <ul class="pagination pagination-sm justify-content-end mb-0">
+                {% if pending_courses_queue.has_previous %}
+                  <li class="page-item"><a class="page-link" href="?course_page={{ pending_courses_queue.previous_page_number }}">«</a></li>
+                {% else %}
+                  <li class="page-item disabled"><span class="page-link">«</span></li>
+                {% endif %}
+                <li class="page-item disabled"><span class="page-link">Page {{ pending_courses_queue.number }} of {{ pending_courses_queue.paginator.num_pages }}</span></li>
+                {% if pending_courses_queue.has_next %}
+                  <li class="page-item"><a class="page-link" href="?course_page={{ pending_courses_queue.next_page_number }}">»</a></li>
+                {% else %}
+                  <li class="page-item disabled"><span class="page-link">»</span></li>
+                {% endif %}
+              </ul>
+            </nav>
+          </div>
+          {% endif %}
+          {% else %}
+          <div class="text-center py-4">
+            <i class="fas fa-check-circle text-muted mb-2" style="font-size:2rem;"></i>
+            <p class="text-muted mb-0">No pending courses.</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Pending Payments Queue -->
+  <div class="row mt-4 g-3">
+    <div class="col-12">
+      <div class="card shadow-sm h-100">
+        <div class="card-header d-flex justify-content-between align-items-center bg-transparent border-bottom">
+          <h5 class="mb-0 fw-bold"><i class="fas fa-money-check text-warning me-2"></i>Pending Payments</h5>
+          <a class="btn btn-sm btn-outline-warning" href="{% url 'payments:admin_payments' %}">
+            <i class="fas fa-external-link-alt me-1"></i> Manage Payments
+          </a>
+        </div>
+        <div class="card-body p-0">
+          {% if pending_payments_queue %}
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>ID</th>
+                  <th>User</th>
+                  <th>Course</th>
+                  <th>Amount</th>
+                  <th>Tx ID</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for p in pending_payments_queue %}
+                <tr>
+                  <td class="fw-bold">#{{ p.id }}</td>
+                  <td>{{ p.user.username }}</td>
+                  <td>{{ p.course.title }}</td>
+                  <td>{{ p.amount }} ৳</td>
+                  <td><code>{{ p.provider_tx_id }}</code></td>
+                  <td class="text-end">
+                    <form method="post" action="{% url 'payments:approve_payment' p.id %}" class="d-inline admin-approve-payment">
+                      {% csrf_token %}
+                      <button class="btn btn-success btn-sm">Approve</button>
+                    </form>
+                    <form method="post" action="{% url 'payments:reject_payment' p.id %}" class="d-inline admin-reject-payment">
+                      {% csrf_token %}
+                      <input type="hidden" name="note" value="">
+                      <button class="btn btn-outline-danger btn-sm">Reject</button>
+                    </form>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% if pending_payments_queue.has_other_pages %}
+          <div class="card-footer bg-white py-2">
+            <nav>
+              <ul class="pagination pagination-sm justify-content-end mb-0">
+                {% if pending_payments_queue.has_previous %}
+                  <li class="page-item"><a class="page-link" href="?pay_page={{ pending_payments_queue.previous_page_number }}">«</a></li>
+                {% else %}
+                  <li class="page-item disabled"><span class="page-link">«</span></li>
+                {% endif %}
+                <li class="page-item disabled"><span class="page-link">Page {{ pending_payments_queue.number }} of {{ pending_payments_queue.paginator.num_pages }}</span></li>
+                {% if pending_payments_queue.has_next %}
+                  <li class="page-item"><a class="page-link" href="?pay_page={{ pending_payments_queue.next_page_number }}">»</a></li>
+                {% else %}
+                  <li class="page-item disabled"><span class="page-link">»</span></li>
+                {% endif %}
+              </ul>
+            </nav>
+          </div>
+          {% endif %}
+          {% else %}
+          <div class="text-center py-4">
+            <i class="fas fa-check-circle text-muted mb-2" style="font-size:2rem;"></i>
+            <p class="text-muted mb-0">No pending payments.</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Pending approvals and quick actions -->
+  <div class="row mt-4 g-3">
+    <div class="col-lg-7">
+      <div class="card shadow-sm h-100">
+        <div class="card-header d-flex justify-content-between align-items-center bg-transparent border-bottom">
+          <h5 class="mb-0 fw-bold"><i class="fas fa-user-clock text-primary me-2"></i>Pending Instructor Requests</h5>
+          <a class="btn btn-sm btn-outline-primary" href="{% url 'admin_tools:instructor_applications' %}">
+            <i class="fas fa-external-link-alt me-1"></i> View All
+          </a>
+        </div>
+        <div class="card-body p-0">
+          {% if pending_instructors %}
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Instructor</th>
+                  <th>Registration Date</th>
+                  <th class="text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for u in pending_instructors %}
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <div class="avatar-circle-sm bg-primary bg-opacity-10 text-primary me-3">
+                        {{ u.get_full_name|default:u.username|first|upper }}
+                      </div>
+                      <div>
+                        <strong>{{ u.get_full_name|default:u.username }}</strong>
+                        <div class="text-muted small">{{ u.email }}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="align-middle">{{ u.date_joined|date:"M d, Y" }}</td>
+                  <td class="align-middle text-center">
+                    <form method="post" action="{% url 'admin_tools:approve_instructor' u.id %}" class="d-inline">
+                      {% csrf_token %}
+                      <button class="btn btn-success btn-sm">
+                        <i class="fas fa-check me-1"></i> Approve
+                      </button>
+                    </form>
+                    <form method="post" action="{% url 'admin_tools:reject_instructor' u.id %}" class="d-inline">
+                      {% csrf_token %}
+                      <button class="btn btn-outline-danger btn-sm">
+                        <i class="fas fa-times"></i>
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% if pending_instructors.has_other_pages %}
+          <div class="card-footer bg-white py-2">
+            <nav>
+              <ul class="pagination pagination-sm justify-content-end mb-0">
+                {% if pending_instructors.has_previous %}
+                  <li class="page-item"><a class="page-link" href="?instr_page={{ pending_instructors.previous_page_number }}">«</a></li>
+                {% else %}
+                  <li class="page-item disabled"><span class="page-link">«</span></li>
+                {% endif %}
+                <li class="page-item disabled"><span class="page-link">Page {{ pending_instructors.number }} of {{ pending_instructors.paginator.num_pages }}</span></li>
+                {% if pending_instructors.has_next %}
+                  <li class="page-item"><a class="page-link" href="?instr_page={{ pending_instructors.next_page_number }}">»</a></li>
+                {% else %}
+                  <li class="page-item disabled"><span class="page-link">»</span></li>
+                {% endif %}
+              </ul>
+            </nav>
+          </div>
+          {% endif %}
+          {% else %}
+          <div class="text-center py-5">
+            <i class="fas fa-check-circle text-muted mb-3" style="font-size: 3rem;"></i>
+            <p class="text-muted">No pending instructor requests</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="card shadow-sm h-100">
+        <div class="card-header bg-transparent border-bottom">
+          <h5 class="mb-0 fw-bold"><i class="fas fa-bolt text-warning me-2"></i>Quick Actions</h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-2">
+              <div class="col-6">
+              <a class="btn btn-action-card h-100 w-100 p-3 text-start" href="{% url 'admin_tools:user_management_list' %}">
+                <div class="d-flex align-items-center">
+                  <div class="action-icon bg-primary bg-opacity-10 text-primary rounded p-3 me-3">
+                    <i class="fas fa-users fa-lg"></i>
+                  </div>
+                  <div>
+                    <h6 class="mb-1 fw-bold">Manage Users</h6>
+                    <small class="text-muted">View all users</small>
+                  </div>
+                </div>
+              </a>
+            </div>
+            <div class="col-6">
+              <a class="btn btn-action-card h-100 w-100 p-3 text-start" href="{% url 'admin_tools:course_approval' %}">
+                <div class="d-flex align-items-center">
+                  <div class="action-icon bg-success bg-opacity-10 text-success rounded p-3 me-3">
+                    <i class="fas fa-book fa-lg"></i>
+                  </div>
+                  <div>
+                    <h6 class="mb-1 fw-bold">Course Approval</h6>
+                    <small class="text-muted">Review courses</small>
+                  </div>
+                </div>
+              </a>
+            </div>
+            <div class="col-6">
+              <a class="btn btn-action-card h-100 w-100 p-3 text-start" href="{% url 'payments:admin_payments' %}">
+                <div class="d-flex align-items-center">
+                  <div class="action-icon bg-info bg-opacity-10 text-info rounded p-3 me-3">
+                    <i class="fas fa-money-bill-wave fa-lg"></i>
+                  </div>
+                  <div>
+                    <h6 class="mb-1 fw-bold">Payments</h6>
+                    <small class="text-muted">View transactions</small>
+                  </div>
+                </div>
+              </a>
+            </div>
+            <div class="col-6">
+              <a class="btn btn-action-card h-100 w-100 p-3 text-start" href="{% url 'admin:index' %}">
+                <div class="d-flex align-items-center">
+                  <div class="action-icon bg-warning bg-opacity-10 text-warning rounded p-3 me-3">
+                    <i class="fas fa-cog fa-lg"></i>
+                  </div>
+                  <div>
+                    <h6 class="mb-1 fw-bold">Settings</h6>
+                    <small class="text-muted">System settings</small>
+                  </div>
+                </div>
+              </a>
+            </div>
+            <div class="col-6">
+              <a class="btn btn-action-card h-100 w-100 p-3 text-start" href="{% url 'admin_tools:faq_manage' %}">
+                <div class="d-flex align-items-center">
+                  <div class="action-icon bg-info bg-opacity-10 text-info rounded p-3 me-3">
+                    <i class="fas fa-question-circle fa-lg"></i>
+                  </div>
+                  <div>
+                    <h6 class="mb-1 fw-bold">FAQs</h6>
+                    <small class="text-muted">Add or edit common questions</small>
+                  </div>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ Management -->
+  <div class="row mt-4 g-3">
+    <div class="col-12">
+      <div class="card shadow-sm">
+        <div class="card-header bg-transparent border-bottom d-flex justify-content-between align-items-center">
+          <h5 class="mb-0 fw-bold"><i class="fas fa-question-circle text-info me-2"></i>FAQs</h5>
+          <small class="text-muted">Add, edit, or deactivate FAQs shown on homepage</small>
+        </div>
+        <div class="card-body">
+          <form method="post" action="{% url 'admin_tools:faq_add' %}" class="row g-2 align-items-end mb-3">
+            {% csrf_token %}
+            <div class="col-md-4">
+              <label class="form-label small text-muted">Question</label>
+              <input type="text" name="question" class="form-control" required>
+            </div>
+            <div class="col-md-5">
+              <label class="form-label small text-muted">Answer</label>
+              <input type="text" name="answer" class="form-control" required>
+            </div>
+            <div class="col-md-1">
+              <label class="form-label small text-muted">Order</label>
+              <input type="number" name="order" value="0" class="form-control">
+            </div>
+            <div class="col-md-1 form-check mt-4">
+              <input class="form-check-input" type="checkbox" name="is_active" id="faqActive" checked>
+              <label class="form-check-label small" for="faqActive">Active</label>
+            </div>
+            <div class="col-md-1">
+              <button class="btn btn-primary w-100"><i class="fas fa-plus"></i></button>
+            </div>
+          </form>
+
+          {% if faqs_dashboard %}
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Question</th>
+                  <th>Answer</th>
+                  <th>Order</th>
+                  <th>Active</th>
+                  <th class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for faq in faqs_dashboard %}
+                <tr>
+                  <form method="post" action="{% url 'admin_tools:faq_update' faq.id %}">
+                    {% csrf_token %}
+                    <td><input type="text" name="question" value="{{ faq.question }}" class="form-control form-control-sm"></td>
+                    <td><input type="text" name="answer" value="{{ faq.answer }}" class="form-control form-control-sm"></td>
+                    <td style="width:90px;"><input type="number" name="order" value="{{ faq.order }}" class="form-control form-control-sm"></td>
+                    <td class="text-center">
+                      <input class="form-check-input" type="checkbox" name="is_active" value="1" {% if faq.is_active %}checked{% endif %}>
+                    </td>
+                    <td class="text-end">
+                      <button class="btn btn-outline-primary btn-sm"><i class="fas fa-save"></i></button>
+                      <form method="post" action="{% url 'admin_tools:faq_delete' faq.id %}" class="d-inline">
+                        {% csrf_token %}
+                        <button class="btn btn-outline-danger btn-sm" onclick="return confirm('Delete this FAQ?')"><i class="fas fa-trash"></i></button>
+                      </form>
+                    </td>
+                  </form>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="text-center py-3 text-muted">No FAQs yet.</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Courses & Payments -->
+  <div class="row mt-4 g-3">
+    <div class="col-lg-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-header d-flex justify-content-between align-items-center bg-transparent border-bottom">
+          <h5 class="mb-0 fw-bold"><i class="fas fa-book text-success me-2"></i>Recent Courses</h5>
+          <a href="{% url 'admin_tools:admin_course_list' %}" class="btn btn-sm btn-outline-success">View All</a>
+        </div>
+        <div class="card-body">
+          {% if recent_courses %}
+          <div class="list-group list-group-flush">
+            {% for course in recent_courses %}
+            <div class="list-group-item px-0">
+              <div class="d-flex align-items-center">
+                <div class="flex-shrink-0">
+                  <img src="{{ course.thumbnail_url }}" alt="{{ course.title }}" class="rounded me-3" style="width:64px; height:48px; object-fit:cover;">
+                </div>
+                <div class="flex-grow-1">
+                  <h6 class="mb-1 fw-bold">{{ course.title }}</h6>
+                  <small class="text-muted">
+                    <i class="fas fa-user me-1"></i> {{ course.instructor.get_full_name|default:course.instructor.username }}
+                  </small>
+                </div>
+                <div class="flex-shrink-0 text-end">
+                  <small class="text-muted d-block">{{ course.created_at|date:"d M, Y" }}</small>
+                  <span class="badge bg-light text-dark border small text-uppercase">{{ course.status }}</span>
+                  <div class="mt-1">
+                    <a href="{% url 'courses:course_detail' course.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="text-center py-4">
+            <i class="fas fa-book-open text-muted mb-3" style="font-size: 3rem;"></i>
+            <p class="text-muted">No recent courses</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-header d-flex justify-content-between align-items-center bg-transparent border-bottom">
+          <h5 class="mb-0 fw-bold"><i class="fas fa-money-bill-wave text-warning me-2"></i>Recent Payments</h5>
+          <a href="{% url 'payments:admin_payments' %}" class="btn btn-sm btn-outline-warning">View All</a>
+        </div>
+        <div class="card-body p-0">
+          {% if recent_payments %}
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>ID</th>
+                  <th>User</th>
+                  <th>Course</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for p in recent_payments %}
+                <tr>
+                  <td class="fw-bold">#{{ p.id }}</td>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <div class="avatar-circle-xs bg-primary bg-opacity-10 text-primary me-2">
+                        {{ p.user.username|first|upper }}
+                      </div>
+                      {{ p.user.username }}
+                    </div>
+                  </td>
+                  <td class="text-truncate" style="max-width: 150px;">{{ p.course.title }}</td>
+                  <td class="fw-bold">{{ p.amount }} ৳</td>
+                  <td>
+                    {% if p.status == 'Completed' %}
+                      <span class="badge bg-success"><i class="fas fa-check me-1"></i> Completed</span>
+                    {% elif p.status == 'Pending' %}
+                      <span class="badge bg-warning text-dark"><i class="fas fa-clock me-1"></i> Pending</span>
+                    {% elif p.status == 'Rejected' %}
+                      <span class="badge bg-danger"><i class="fas fa-times me-1"></i> Rejected</span>
+                    {% elif p.status == 'Refunded' %}
+                      <span class="badge bg-info text-dark"><i class="fas fa-undo me-1"></i> Refunded</span>
+                    {% else %}
+                      <span class="badge bg-secondary">{{ p.status }}</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          <div class="text-center py-5">
+            <i class="fas fa-money-bill-wave text-muted mb-3" style="font-size: 3rem;"></i>
+            <p class="text-muted">No payments found</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Activity -->
+  <div class="row mt-4">
+    <div class="col-lg-12">
+      <div class="card shadow-sm">
+        <div class="card-header bg-transparent border-bottom">
+          <h5 class="mb-0 fw-bold"><i class="fas fa-list-alt text-info me-2"></i>Recent Activity</h5>
+        </div>
+        <div class="card-body">
+          {% if recent_activities %}
+          <div class="activity-timeline">
+            {% for a in recent_activities %}
+            <div class="activity-item d-flex">
+              <div class="activity-marker bg-info"></div>
+              <div class="activity-content flex-grow-1 ms-3 pb-3">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <p class="mb-1 fw-semibold">
+                      {{ a.action_type|default:"Action" }}{% if a.target_object %} on {{ a.target_object }}{% endif %}
+                    </p>
+                    <p class="mb-0 text-muted small">
+                      by {{ a.admin.get_full_name|default:a.admin.username }}
+                      {% if a.details %}&middot; {{ a.details|truncatewords:20 }}{% endif %}
+                    </p>
+                  </div>
+                  <small class="text-muted">{{ a.created_at|date:"M d, Y H:i" }}</small>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="text-center py-4">
+            <i class="fas fa-history text-muted mb-3" style="font-size: 3rem;"></i>
+            <p class="text-muted">No recent activity recorded.</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+
+<!-- Load Bootstrap JavaScript properly -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<script>
+const ctx = document.getElementById('revenueChart');
+const labels = [{% for lbl in payment_chart_labels %}"{{ lbl }}",{% endfor %}];
+const dataPoints = [{% for val in payment_chart_values %}{{ val }},{% endfor %}];
+new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: labels,
+    datasets: [{
+      label: 'Revenue (৳)',
+      data: dataPoints,
+      borderColor: '#0d6efd',
+      borderWidth: 2,
+      fill: false
+    }]
+  },
+  options: {
+    scales: {
+      y: {beginAtZero: true}
+    }
+  }
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".admin-approve-form button, .admin-approve-payment button").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      if (!confirm("Approve this item?")) {
+        e.preventDefault();
+      }
+    });
+  });
+
+  document.querySelectorAll(".admin-reject-form button").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      const note = prompt("Reject this course? Optional reason:");
+      if (note === null) {
+        e.preventDefault();
+        return;
+      }
+      const form = btn.closest("form");
+      if (form && form.querySelector(\"input[name='note']\")) {
+        form.querySelector(\"input[name='note']\").value = note || \"\";
+      }
+    });
+  });
+
+  document.querySelectorAll(".admin-reject-payment button").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      const note = prompt("Reject this payment? Optional reason:");
+      if (note === null) {
+        e.preventDefault();
+        return;
+      }
+      const form = btn.closest("form");
+      if (form && form.querySelector(\"input[name='note']\")) {
+        form.querySelector(\"input[name='note']\").value = note || \"\";
+      }
+    });
+  });
+});
+</script>
+
+{% endblock %}

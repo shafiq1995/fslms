@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Manage Lesson - {{ lesson.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold text-primary mb-1">
+        <i class="bi bi-journal-text"></i> Manage Lesson: {{ lesson.title }}
+      </h2>
+      <p class="text-muted mb-0">
+        <i class="bi bi-folder2-open"></i> Section: {{ section.title }} |
+        <i class="bi bi-book"></i> Course: {{ course.title }}
+      </p>
+    </div>
+    <a href="{% url 'instructor_tool:section_manage' course.id section.id %}" class="btn btn-outline-secondary">
+      <i class="bi bi-arrow-left"></i> Back to Section
+    </a>
+  </div>
+
+  <!-- Edit Lesson -->
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+      <h5 class="fw-bold mb-3"><i class="bi bi-pencil-square"></i> Edit Lesson Details</h5>
+      <div class="alert alert-info d-flex align-items-center gap-2 py-2">
+        <i class="bi bi-info-circle-fill"></i>
+        <div class="small mb-0">
+          Type: <strong>{{ lesson.get_lesson_type_display }}</strong>
+          {% if lesson.scheduled_at %}| Scheduled: {{ lesson.scheduled_at|date:"M d, Y h:i A" }}{% endif %}
+          {% if lesson.join_link %}| Join link available{% endif %}
+          {% if lesson.is_published %}<span class="badge bg-success ms-2">Published</span>{% else %}<span class="badge bg-secondary ms-2">Draft</span>{% endif %}
+        </div>
+      </div>
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Title</label>
+            {{ form.title }}
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Lesson Type</label>
+            {{ form.lesson_type }}
+          </div>
+          <div class="col-md-3">
+            <label class="form-label">Display Order</label>
+            {{ form.order }}
+          </div>
+          <div class="col-md-12">
+            <label class="form-label">Content</label>
+            {{ form.content }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Live/Join Link</label>
+            {{ form.join_link }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Scheduled At</label>
+            {{ form.scheduled_at }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Duration (minutes)</label>
+            {{ form.duration_minutes }}
+          </div>
+          <div class="col-md-12">
+            <label class="form-label">External Resources (one per line)</label>
+            {{ form.resource_links }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Video (optional)</label>
+            {{ form.video }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Primary Attachment (optional)</label>
+            {{ form.attachment }}
+          </div>
+          <div class="col-md-12">
+            <div class="row g-3">
+              <div class="col-md-4">
+                <div class="form-check">
+                  {{ form.is_published }}
+                  <label class="form-check-label ms-1">Published</label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check">
+                  {{ form.is_preview }}
+                  <label class="form-check-label ms-1">Allow preview</label>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check">
+                  {{ form.is_completed }}
+                  <label class="form-check-label ms-1">Mark completed</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-end mt-3">
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-save"></i> Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Manage Attachments -->
+  <div class="card shadow-sm border-0">
+    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+      <h5 class="mb-0 fw-bold">
+        <i class="bi bi-paperclip"></i> Manage Attachments
+      </h5>
+      <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#addAttachmentModal">
+        <i class="bi bi-plus-circle"></i> Add Attachment
+      </button>
+    </div>
+
+    <div class="card-body">
+      {% if lesson.attachments.all %}
+      <ul class="list-group list-group-flush">
+        {% for file in lesson.attachments.all %}
+        <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+          <div>
+            <h6 class="fw-bold mb-1">
+              <i class="bi bi-file-earmark"></i> {{ file.title|default:file.file.name|cut:"uploads/" }}
+            </h6>
+            <p class="small text-muted mb-1">{{ file.file.size|filesizeformat }}</p>
+          </div>
+          <div class="text-end">
+            <a href="{{ file.file.url }}" class="btn btn-sm btn-outline-primary me-2" download>
+              <i class="bi bi-download"></i> Download
+            </a>
+            <form method="POST" action="{% url 'courses:delete_lesson_attachment' file.id %}" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-outline-danger">
+                <i class="bi bi-trash"></i>
+              </button>
+            </form>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+        <p class="text-muted text-center mt-2">No attachments available.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Add Attachment Modal -->
+  <div class="modal fade" id="addAttachmentModal" tabindex="-1" aria-labelledby="addAttachmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="addAttachmentModalLabel">
+            <i class="bi bi-paperclip"></i> Add Attachment
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form method="POST" enctype="multipart/form-data" action="{% url 'courses:lesson_add_attachments' lesson.id %}">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label class="form-label">Attachment Title</label>
+              <input type="text" name="title" class="form-control" placeholder="Enter attachment title (optional)">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Select File</label>
+              <input type="file" name="file" class="form-control" required>
+            </div>
+            <div class="text-end">
+              <button type="submit" class="btn btn-success">
+                <i class="bi bi-upload"></i> Upload
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

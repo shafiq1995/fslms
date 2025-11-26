@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}User Profile - {{ user_obj.get_full_name|default:user_obj.username }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <!-- Header -->
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body d-flex flex-wrap align-items-center justify-content-between">
+      <div class="d-flex align-items-center mb-3 mb-md-0">
+        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+             style="width:70px;height:70px;font-size:1.5rem;">
+          {{ user_obj.first_name|default:user_obj.username|slice:":1"|upper }}
+        </div>
+        <div class="ms-3">
+          <h3 class="mb-1 fw-bold">{{ user_obj.get_full_name|default:user_obj.username }}</h3>
+          <p class="text-muted mb-0">{{ user_obj.email }}</p>
+          <span class="badge {% if user_obj.role == 'student' %}bg-info{% elif user_obj.role == 'instructor' %}bg-success{% else %}bg-dark{% endif %}">
+            {{ user_obj.role|capfirst }}
+          </span>
+        </div>
+      </div>
+      <a href="{% url 'admin_tools:user_management_list' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left-circle me-1"></i> Back to Users
+      </a>
+    </div>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="row g-4 mb-4">
+    {% if user_obj.role == 'student' %}
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm text-center">
+          <div class="card-body">
+            <i class="bi bi-journal-check text-primary display-6"></i>
+            <h5 class="mt-3">Total Enrolled Courses</h5>
+            <h3 class="fw-bold">{{ enrolled_courses|length }}</h3>
+          </div>
+        </div>
+      </div>
+    {% elif user_obj.role == 'instructor' %}
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm text-center">
+          <div class="card-body">
+            <i class="bi bi-mortarboard text-success display-6"></i>
+            <h5 class="mt-3">Courses Created</h5>
+            <h3 class="fw-bold">{{ created_courses|length }}</h3>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm text-center">
+        <div class="card-body">
+          <i class="bi bi-cash-stack text-warning display-6"></i>
+          <h5 class="mt-3">Payments</h5>
+          <h3 class="fw-bold">{{ payments|length }}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <ul class="nav nav-tabs mb-4" id="userProfileTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview"
+              type="button" role="tab"><i class="bi bi-person-circle me-1"></i> Overview</button>
+    </li>
+    {% if user_obj.role == 'student' %}
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="enrolled-tab" data-bs-toggle="tab" data-bs-target="#enrolled"
+              type="button" role="tab"><i class="bi bi-book me-1"></i> Enrolled Courses</button>
+    </li>
+    {% elif user_obj.role == 'instructor' %}
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="created-tab" data-bs-toggle="tab" data-bs-target="#created"
+              type="button" role="tab"><i class="bi bi-mortarboard me-1"></i> Created Courses</button>
+    </li>
+    {% endif %}
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="payments-tab" data-bs-toggle="tab" data-bs-target="#payments"
+              type="button" role="tab"><i class="bi bi-cash me-1"></i> Payments</button>
+    </li>
+  </ul>
+
+  <!-- Tab Contents -->
+  <div class="tab-content" id="userProfileTabsContent">
+
+    <!-- Overview -->
+    <div class="tab-pane fade show active" id="overview" role="tabpanel">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h5 class="fw-bold mb-3"><i class="bi bi-person-lines-fill me-2"></i>User Overview</h5>
+          <p><strong>Full Name:</strong> {{ user_obj.get_full_name|default:"N/A" }}</p>
+          <p><strong>Email:</strong> {{ user_obj.email }}</p>
+          <p><strong>Role:</strong> {{ user_obj.role|capfirst }}</p>
+          <p><strong>Joined:</strong> {{ user_obj.date_joined|date:"d M Y, H:i" }}</p>
+          <p><strong>Last Login:</strong> {{ user_obj.last_login|date:"d M Y, H:i"|default:"Never" }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Student: Enrolled Courses -->
+    {% if user_obj.role == 'student' %}
+    <div class="tab-pane fade" id="enrolled" role="tabpanel">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          {% if enrolled_courses %}
+          <table class="table table-striped align-middle">
+            <thead>
+              <tr>
+                <th>Course</th>
+                <th>Instructor</th>
+                <th>Progress</th>
+                <th>Enrolled On</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for course in enrolled_courses %}
+              <tr>
+                <td><a href="{% url 'courses:course_detail' course.id %}" class="fw-semibold">{{ course.title }}</a></td>
+                <td>{{ course.instructor.get_full_name|default:course.instructor.username }}</td>
+                <td>
+                  {% with course.course_enrollments.first as enrollment %}
+                    {{ enrollment.progress|floatformat:1 }}%
+                  {% endwith %}
+                </td>
+                <td>{{ course.course_enrollments.first.enrolled_at|date:"d M Y" }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          <p class="text-muted mb-0">No enrollments found for this student.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Instructor: Created Courses -->
+    {% if user_obj.role == 'instructor' %}
+    <div class="tab-pane fade" id="created" role="tabpanel">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          {% if created_courses %}
+          <table class="table table-hover align-middle">
+            <thead>
+              <tr>
+                <th>Course Title</th>
+                <th>Students</th>
+                <th>Status</th>
+                <th>Created</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for course in created_courses %}
+              <tr>
+                <td><a href="{% url 'courses:course_detail' course.id %}" class="fw-semibold">{{ course.title }}</a></td>
+                <td>{{ course.course_enrollments.count }}</td>
+                <td>
+                  <span class="badge {% if course.status == 'Published' %}bg-success{% else %}bg-secondary{% endif %}">
+                    {{ course.status }}
+                  </span>
+                </td>
+                <td>{{ course.created_at|date:"d M Y" }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          <p class="text-muted mb-0">This instructor hasn’t created any courses yet.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Payments (All roles) -->
+    <div class="tab-pane fade" id="payments" role="tabpanel">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          {% if payments %}
+          <table class="table table-striped align-middle">
+            <thead>
+              <tr>
+                <th>Course</th>
+                <th>Amount (৳)</th>
+                <th>Provider</th>
+                <th>Tx ID</th>
+                <th>Status</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in payments %}
+              <tr>
+                <td>{{ p.course.title }}</td>
+                <td>{{ p.amount }}</td>
+                <td>{{ p.provider }}</td>
+                <td>{{ p.provider_tx_id }}</td>
+                <td>
+                  <span class="badge
+                    {% if p.status == 'Approved' %}bg-success
+                    {% elif p.status == 'Pending' %}bg-warning text-dark
+                    {% elif p.status == 'Rejected' %}bg-danger
+                    {% else %}bg-secondary{% endif %}">
+                    {{ p.status }}
+                  </span>
+                </td>
+                <td>{{ p.created_at|date:"d M Y, H:i" }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          <p class="text-muted mb-0">No payment records found.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

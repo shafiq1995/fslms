@@ -1,0 +1,301 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Certificate - {{ certificate.course.title }}{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --primary-color: #2c3e50;
+        --accent-color: #3498db;
+        --gold-color: #d4af37;
+        --light-bg: #f8f9fa;
+        --border-color: #e9ecef;
+    }
+    
+    .certificate-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+    }
+    
+    .certificate-header {
+        background: linear-gradient(135deg, var(--primary-color), #1a2530);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+        position: relative;
+    }
+    
+    .certificate-header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--gold-color), var(--accent-color), var(--gold-color));
+    }
+    
+    .certificate-icon {
+        font-size: 3rem;
+        color: var(--gold-color);
+        margin-bottom: 1rem;
+    }
+    
+    .certificate-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        letter-spacing: 1px;
+    }
+    
+    .certificate-subtitle {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        font-weight: 300;
+    }
+    
+    .certificate-body {
+        padding: 2.5rem;
+    }
+    
+    .certificate-info {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .info-card {
+        background: var(--light-bg);
+        padding: 1.25rem;
+        border-radius: 8px;
+        border-left: 4px solid var(--accent-color);
+    }
+    
+    .info-label {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        color: #6c757d;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+    
+    .info-value {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--primary-color);
+    }
+    
+    .progress-section {
+        margin: 2rem 0;
+        padding: 1.5rem;
+        background: #f0f7ff;
+        border-radius: 10px;
+        border: 1px dashed #cce5ff;
+    }
+    
+    .progress-label {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+    }
+    
+    .progress-bar {
+        height: 10px;
+        background-color: #e9ecef;
+        border-radius: 5px;
+        overflow: hidden;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent-color), #5dade2);
+        border-radius: 5px;
+        transition: width 1.5s ease-in-out;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+    
+    .btn-download {
+        background: var(--primary-color);
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 6px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        border: none;
+        text-decoration: none;
+    }
+    
+    .btn-download:hover {
+        background: #1a2530;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        color: white;
+        text-decoration: none;
+    }
+    
+    .btn-share {
+        background: white;
+        color: var(--primary-color);
+        border: 1px solid var(--border-color);
+        padding: 0.75rem 1.5rem;
+        border-radius: 6px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+    
+    .btn-share:hover {
+        background: var(--light-bg);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        color: var(--primary-color);
+        text-decoration: none;
+    }
+    
+    .certificate-footer {
+        padding: 1.5rem 2.5rem;
+        background: var(--light-bg);
+        border-top: 1px solid var(--border-color);
+        font-size: 0.9rem;
+        color: #6c757d;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .template-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    @media (max-width: 768px) {
+        .certificate-body {
+            padding: 1.5rem;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .certificate-footer {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+    }
+</style>
+
+<div class="certificate-container">
+    <div class="certificate-header">
+        <i class="bi bi-award-fill certificate-icon"></i>
+        <h1 class="certificate-title">Certificate of Completion</h1>
+        <p class="certificate-subtitle">This certifies that the following individual has successfully completed the course requirements</p>
+    </div>
+    
+    <div class="certificate-body">
+        <div class="certificate-info">
+            <div class="info-card">
+                <div class="info-label">Student</div>
+                <div class="info-value">{{ certificate.user.get_full_name|default:certificate.user.username }}</div>
+            </div>
+            
+            <div class="info-card">
+                <div class="info-label">Course</div>
+                <div class="info-value">{{ certificate.course.title }}</div>
+            </div>
+            
+            <div class="info-card">
+                <div class="info-label">Certificate Serial</div>
+                <div class="info-value">{{ certificate.serial }}</div>
+            </div>
+            
+            <div class="info-card">
+                <div class="info-label">Date Issued</div>
+                <div class="info-value">{{ certificate.issued_at|date:"M d, Y" }}</div>
+            </div>
+        </div>
+        
+        <div class="progress-section">
+            <div class="progress-label">
+                <span>Course Progress</span>
+                <span>{{ certificate.progress_snapshot }}%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+            <p class="mt-2 mb-0"><i class="bi bi-info-circle"></i> Printed version will be sent shortly.</p>
+        </div>
+        
+        <div class="action-buttons">
+            <a href="{% url 'certificates:pdf' certificate.id %}" class="btn-download" target="_blank" rel="noopener">
+                <i class="bi bi-file-earmark-pdf"></i> Download PDF Certificate
+            </a>
+            <a href="#" class="btn-share" id="shareButton">
+                <i class="bi bi-share"></i> Share Achievement
+            </a>
+        </div>
+    </div>
+    
+    <div class="certificate-footer">
+        {% if certificate.template_name %}
+        <div class="template-info">
+            <i class="bi bi-layout-text-sidebar"></i>
+            <span>Template: {{ certificate.template_name }}</span>
+        </div>
+        {% endif %}
+        <div>Issued by Learning Platform</div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate progress bar
+        const progressFill = document.getElementById('progressFill');
+        const progressValue = {{ certificate.progress_snapshot }};
+        
+        setTimeout(() => {
+            progressFill.style.width = progressValue + '%';
+        }, 500);
+        
+        // Share button functionality
+        const shareBtn = document.getElementById('shareButton');
+        
+        shareBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'My Certificate of Completion',
+                    text: 'I completed {{ certificate.course.title }}!',
+                    url: window.location.href,
+                })
+                .then(() => console.log('Successful share'))
+                .catch((error) => console.log('Error sharing:', error));
+            } else {
+                // Fallback for browsers that don't support the Web Share API
+                alert('Share this achievement with your network! Certificate URL: ' + window.location.href);
+            }
+        });
+    });
+</script>
+{% endblock %}

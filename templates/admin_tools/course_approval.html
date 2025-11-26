@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}Course Approval{% endblock %}
+{% include "partials/header_admin.html" %}
+{% block content %}
+<div class="container mt-4 mb-5">
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+    <h3 class="fw-bold mb-0"><i class="bi bi-check2-square"></i> Course Approval Queue</h3>
+    <a href="{% url 'admin_tools:admin_course_list' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-list"></i> Manage Courses</a>
+  </div>
+
+  <!-- Filters -->
+  <form method="get" class="row g-2 align-items-center mb-4 bg-white p-3 rounded shadow-sm">
+    <div class="col-md-6">
+      <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Search course title">
+    </div>
+    <div class="col-md-3">
+      <select name="status" class="form-select">
+        <option value="pending" {% if status_filter == "pending" %}selected{% endif %}>Pending</option>
+        <option value="approved" {% if status_filter == "approved" %}selected{% endif %}>Approved / Published</option>
+        <option value="rejected" {% if status_filter == "rejected" %}selected{% endif %}>Rejected</option>
+      </select>
+    </div>
+    <div class="col-md-3 text-end">
+      <button class="btn btn-primary"><i class="bi bi-funnel"></i> Filter</button>
+      <a href="{% url 'admin_tools:course_approval' %}" class="btn btn-outline-secondary">Reset</a>
+    </div>
+  </form>
+
+  {% if pending_courses %}
+  <div class="table-responsive">
+    <table class="table table-hover align-middle shadow-sm">
+      <thead class="table-light">
+        <tr>
+          <th>Course</th>
+          <th>Instructor</th>
+          <th>Status</th>
+          <th>Created</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for course in pending_courses %}
+        <tr>
+          <td>
+            <div class="d-flex align-items-center">
+              <div class="me-3">
+                <img src="{{ course.thumbnail_url }}" alt="Thumbnail" style="width:70px; height:50px; object-fit:cover; border-radius:5px;">
+              </div>
+              <div>
+                <div class="fw-semibold">{{ course.title }}</div>
+                <div class="text-muted small">{{ course.category.name|default:"Uncategorized" }}</div>
+              </div>
+            </div>
+          </td>
+          <td>{{ course.instructor.get_full_name|default:course.instructor.username }}</td>
+          <td>
+            {% with st=course.status|lower %}
+              {% if st == 'pending' %}<span class="badge bg-warning text-dark">Pending</span>
+              {% elif st == 'approved' %}<span class="badge bg-success">Approved</span>
+              {% elif st == 'published' %}<span class="badge bg-success">Published</span>
+              {% elif st == 'rejected' %}<span class="badge bg-danger">Rejected</span>
+              {% else %}<span class="badge bg-secondary">{{ course.status }}</span>{% endif %}
+            {% endwith %}
+          </td>
+          <td>{{ course.created_at|date:"d M, Y" }}</td>
+          <td class="text-end">
+            <form method="post" action="{% url 'admin_tools:approve_course' course.id %}" class="d-inline">
+              {% csrf_token %}
+              <button class="btn btn-success btn-sm">Approve</button>
+            </form>
+            <form method="post" action="{% url 'admin_tools:reject_course' course.id %}" class="d-inline">
+              {% csrf_token %}
+              <input type="hidden" name="note" value="">
+              <button class="btn btn-outline-danger btn-sm confirm-reject">Reject</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <div class="alert alert-info">No courses match this filter.</div>
+  {% endif %}
+
+  <hr class="my-4">
+  <h4 class="fw-semibold">Recently Approved/Published</h4>
+  <div class="row g-3">
+    {% for course in approved_courses %}
+    <div class="col-md-6 col-lg-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body">
+          <div class="fw-semibold">{{ course.title }}</div>
+          <div class="text-muted small">{{ course.instructor.get_full_name|default:course.instructor.username }}</div>
+          <div class="text-muted small">{{ course.created_at|date:"d M, Y" }}</div>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <p class="text-muted">No approved courses found.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".confirm-reject").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      const note = prompt("Reject this course? Optional reason:");
+      if (note === null) {
+        e.preventDefault();
+        return;
+      }
+      const form = btn.closest("form");
+      if (form && form.querySelector("input[name='note']")) {
+        form.querySelector("input[name='note']").value = note || "";
+      }
+    });
+  });
+});
+</script>
+{% endblock %}

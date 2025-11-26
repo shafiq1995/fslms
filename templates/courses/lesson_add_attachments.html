@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Add Attachments | {{ lesson.title }}{% endblock %}
+{% block content %}
+<div class="container mt-5 mb-5">
+  <div class="card shadow-sm border-0">
+    <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+      <h5 class="mb-0"><i class="bi bi-paperclip"></i> Add Attachments to {{ lesson.title }}</h5>
+      <a href="{% url 'courses:lesson_detail' lesson.id %}" class="btn btn-light btn-sm">
+        <i class="bi bi-arrow-left"></i> Back
+      </a>
+    </div>
+
+    <div class="card-body">
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label fw-bold">Select Files</label>
+          {{ form.file }}
+        </div>
+        <p class="text-muted mb-2">Hold <strong>Ctrl (or Cmd)</strong> to select multiple files.</p>
+        <div class="text-end mt-4">
+          <button type="submit" class="btn btn-secondary px-4">
+            <i class="bi bi-upload"></i> Upload Files
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

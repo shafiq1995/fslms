@@ -1,0 +1,634 @@
+{# src/templates/courses/course_detail.html #}
+{% extends "base.html" %}
+{% load static %}
+{% block title %}{{ course.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/course_detail.css' %}">
+<style>
+    .course-hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 3rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0 0 30px 30px;
+    }
+
+    .course-main-card {
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    .course-thumbnail {
+        height: 400px;
+        object-fit: cover;
+        width: 100%;
+    }
+
+    .course-header {
+        padding: 2rem;
+    }
+
+    .course-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: #2d3748;
+    }
+
+    .course-meta {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #6b7280;
+        font-weight: 500;
+    }
+
+    .level-badge {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 0.25rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .section-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        margin-bottom: 1.5rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .section-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    }
+
+    .section-header {
+        background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+        padding: 1.5rem;
+        border-radius: 15px 15px 0 0;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .section-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin: 0;
+    }
+
+    .lesson-item {
+        display: flex;
+        align-items: center;
+        justify-content: between;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid #f1f5f9;
+        transition: background-color 0.3s ease;
+    }
+
+    .lesson-item:hover {
+        background-color: #f8fafc;
+    }
+
+    .lesson-item:last-child {
+        border-bottom: none;
+    }
+
+    .lesson-completed {
+        color: #10b981;
+        margin-right: 1rem;
+    }
+
+    .lesson-content {
+        flex: 1;
+    }
+
+    .lesson-title {
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 0.25rem;
+    }
+
+    .lesson-meta {
+        color: #6b7280;
+        font-size: 0.875rem;
+    }
+
+    .lesson-type-badge {
+        background: #e0e7ff;
+        color: #3730a3;
+        padding: 0.2rem 0.6rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .preview-badge {
+        background: #dcfce7;
+        color: #166534;
+        padding: 0.2rem 0.6rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    .sidebar-card {
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+        overflow: hidden;
+    }
+
+    .sidebar-header {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 1.5rem;
+        text-align: center;
+    }
+
+    .price-section {
+        text-align: center;
+        padding: 1.5rem;
+        background: #f8fafc;
+    }
+
+    .original-price {
+        font-size: 1.2rem;
+        color: #6b7280;
+        text-decoration: line-through;
+    }
+
+    .discount-price {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #dc2626;
+    }
+
+    .current-price {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #059669;
+    }
+
+    .enroll-btn {
+        background: linear-gradient(135deg, #059669, #047857);
+        border: none;
+        border-radius: 12px;
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: white;
+        transition: all 0.3s ease;
+        width: 100%;
+        margin: 1rem 0;
+    }
+
+    .enroll-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(5, 150, 105, 0.3);
+    }
+
+    .instructor-card {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 2rem;
+    }
+
+    .instructor-avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 4px solid #e2e8f0;
+    }
+
+    .instructor-info h5 {
+        margin-bottom: 0.5rem;
+        color: #2d3748;
+    }
+
+    .instructor-title {
+        color: #6b7280;
+        margin-bottom: 0.75rem;
+    }
+
+    .attachment-item {
+        display: flex;
+        align-items: center;
+        justify-content: between;
+        padding: 1rem;
+        border-radius: 10px;
+        background: #f8fafc;
+        margin-bottom: 0.75rem;
+        transition: background-color 0.3s ease;
+    }
+
+    .attachment-item:hover {
+        background: #e2e8f0;
+    }
+
+    .learning-outcomes {
+        background: linear-gradient(135deg, #dbeafe, #e0e7ff);
+        padding: 2rem;
+        border-radius: 15px;
+        margin: 2rem 0;
+    }
+
+    .outcomes-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1e40af;
+        margin-bottom: 1.5rem;
+    }
+
+    .outcomes-list {
+        list-style: none;
+        padding: 0;
+    }
+
+    .outcomes-list li {
+        padding: 0.5rem 0;
+        padding-left: 2rem;
+        position: relative;
+        color: #374151;
+        font-weight: 500;
+    }
+
+    .outcomes-list li:before {
+        content: "✓";
+        position: absolute;
+        left: 0;
+        color: #059669;
+        font-weight: bold;
+    }
+
+    @media (max-width: 768px) {
+        .course-title {
+            font-size: 2rem;
+        }
+
+        .course-meta {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .instructor-card {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Course Hero Section -->
+<div class="course-hero">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb" style="background: transparent;">
+                        <li class="breadcrumb-item"><a href="{% url 'courses:course_list' %}" class="text-white-50">Courses</a></li>
+                        <li class="breadcrumb-item text-white" aria-current="page">{{ course.title }}</li>
+                    </ol>
+                </nav>
+                <h1 class="course-title text-white">{{ course.title }}</h1>
+                <p class="lead text-white-80 mb-0">{{ course.short_description }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <!-- Main Content -->
+        <div class="col-lg-8">
+            <!-- Course Thumbnail & Basic Info -->
+            <div class="course-main-card">
+                {% if course.thumbnail %}
+                    <img src="{{ course.thumbnail.url }}" class="course-thumbnail" alt="{{ course.title }}">
+                {% endif %}
+                <div class="course-header">
+                    <div class="course-meta">
+                        <div class="meta-item">
+                            <i class="bi bi-person-circle"></i>
+                            <span>
+                                {% if course.instructor %}
+                                    {{ course.instructor.get_full_name|default:course.instructor.username }}
+                                {% else %}
+                                    Unknown Instructor
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="bi bi-people"></i>
+                            <span>{{ total_students }} learners</span>
+                        </div>
+                        <div class="meta-item">
+                            <i class="bi bi-translate"></i>
+                            <span>{{ course.language|default:"Not specified" }}</span>
+                        </div>
+                        <div class="level-badge">{{ course.level }}</div>
+                    </div>
+
+                    <div class="course-description">
+                        {{ course.description|linebreaks }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Learning Outcomes -->
+            {% if course.learning_outcomes %}
+            <div class="learning-outcomes">
+                <h3 class="outcomes-title">What You'll Learn</h3>
+                <ul class="outcomes-list">
+                    {% for lo in course.learning_outcomes.splitlines %}
+                        {% if lo %}<li>{{ lo }}</li>{% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <!-- Course Curriculum -->
+            <div class="section-card">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <i class="bi bi-journals me-2"></i>Course Curriculum
+                    </h3>
+                </div>
+                <div class="card-body p-0">
+                    {% if sections %}
+                        {% for section in sections %}
+                            <div class="lesson-section">
+                                <div class="lesson-item" style="background: #f1f5f9;">
+                                    <div class="lesson-content">
+                                        <h6 class="lesson-title mb-0">{{ section.title }}</h6>
+                                        <div class="lesson-meta">{{ section.lessons.all|length }} lessons</div>
+                                    </div>
+                                </div>
+
+                                {% for lesson in section.lessons.all %}
+                                <div class="lesson-item">
+                                    <div class="lesson-completed">
+                                        {% if lesson.is_completed %}
+                                            <i class="bi bi-check-circle-fill text-success"></i>
+                                        {% else %}
+                                            <i class="bi bi-circle text-muted"></i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="lesson-content">
+                                        <div class="lesson-title">{{ lesson.title }}</div>
+                                        <div class="lesson-meta d-flex align-items-center gap-2 flex-wrap">
+                                            <span class="lesson-type-badge">{{ lesson.lesson_type }}</span>
+                                            {% if lesson.scheduled_at %}
+                                                <span><i class="bi bi-calendar-event"></i> {{ lesson.scheduled_at|date:"M j, H:i" }}</span>
+                                            {% endif %}
+                                            {% if lesson.duration_minutes %}
+                                                <span><i class="bi bi-clock"></i> {{ lesson.duration_minutes }} mins</span>
+                                            {% endif %}
+                                            {% if lesson.is_preview %}
+                                                <span class="preview-badge">Preview Available</span>
+                                            {% endif %}
+                                        </div>
+
+                                        {% if lesson.resource_links %}
+                                        <div class="mt-2">
+                                            {% for link in lesson.resource_links.splitlines %}
+                                                {% if link %}
+                                                    <a href="{{ link }}" target="_blank" class="btn btn-sm btn-outline-primary me-1 mb-1">
+                                                        <i class="bi bi-link-45deg"></i> Resource
+                                                    </a>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="lesson-actions">
+                                        {% if user.is_authenticated and enrolled or user.is_authenticated and is_admin_or_instructor %}
+                                            <a href="{% url 'courses:lesson_detail' lesson.id %}" class="btn btn-primary btn-sm">
+                                                View Lesson
+                                            </a>
+                                        {% elif lesson.is_preview %}
+                                            <a href="{% url 'courses:lesson_detail' lesson.id %}" class="btn btn-success btn-sm">
+                                                Free Preview
+                                            </a>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Locked</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+
+                                {% if is_admin_or_instructor %}
+                                <div class="p-3 border-top">
+                                    <a href="{% url 'courses:lesson_create' section.id %}" class="btn btn-primary btn-sm">
+                                        <i class="bi bi-plus-circle"></i> Add Lesson to This Section
+                                    </a>
+                                </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center p-4">
+                            <i class="bi bi-journals display-4 text-muted"></i>
+                            <p class="text-muted mt-2">No sections added yet.</p>
+                            {% if is_admin_or_instructor %}
+                                <a href="{% url 'courses:section_create' course.id %}" class="btn btn-primary">
+                                    Create First Section
+                                </a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Instructor Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <i class="bi bi-person-badge me-2"></i>About the Instructor
+                    </h3>
+                </div>
+                <div class="instructor-card">
+                    <div>
+                        {% if course.instructor and course.instructor.avatar %}
+                            <img src="{{ course.instructor.avatar.url }}" class="instructor-avatar" alt="{{ course.instructor.get_full_name|default:course.instructor.username }}">
+                        {% elif course.instructor and course.instructor.profile and course.instructor.profile.profile_picture %}
+                            <img src="{{ course.instructor.profile.profile_picture.url }}" class="instructor-avatar" alt="{{ course.instructor.get_full_name|default:course.instructor.username }}">
+                        {% else %}
+                            <img src="{% static 'images/default instructor image.jpg' %}" class="instructor-avatar" alt="Default Instructor">
+                        {% endif %}
+                    </div>
+                    <div class="instructor-info">
+                        <h5>{{ course.instructor.get_full_name|default:course.instructor.username }}</h5>
+                        <p class="instructor-title">{{ course.instructor.professional_title|default:"Course Instructor" }}</p>
+                        <p class="mb-3">{{ course.instructor.bio|default:"No bio provided."|truncatewords:30 }}</p>
+                        <a href="{% url 'instructor_tool:detail' course.instructor.id %}" class="btn btn-outline-primary">
+                            View Full Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reviews Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <i class="bi bi-star me-2"></i>Student Reviews
+                    </h3>
+                </div>
+                <div class="card-body text-center p-4">
+                    <i class="bi bi-chat-square-text display-4 text-muted"></i>
+                    <p class="text-muted mt-2">Reviews & ratings will be shown here (module not implemented yet).</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Enrollment Card -->
+            <div class="sidebar-card">
+                <div class="sidebar-header">
+                    <h5 class="mb-0">Enroll in this Course</h5>
+                </div>
+                <div class="price-section">
+                    {% if course.discount_price %}
+                        <div class="original-price">&#2547;{{ course.price }}</div>
+                        <div class="discount-price">&#2547;{{ course.discount_price }}</div>
+                    {% else %}
+                        <div class="current-price">&#2547;{{ course.price|default:"Free" }}</div>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <div class="course-details mb-3">
+                        <h6 class="fw-semibold mb-3">Course Details</h6>
+                        <div class="mb-2">
+                            <strong>Category:</strong>
+                            {% if course.category %}
+                                {{ course.category.name }}
+                            {% else %}
+                                Uncategorized
+                            {% endif %}
+                        </div>
+                        <div class="mb-2">
+                            <strong>Language:</strong> {{ course.language|default:"Not specified" }}
+                        </div>
+                        <div class="mb-2">
+                            <strong>Level:</strong> {{ course.level|title }}
+                        </div>
+                    </div>
+
+                    {% if enrolled %}
+                        <a href="{% url 'student_tool:course_detail' course.id %}" class="enroll-btn">
+                            <i class="bi bi-play-circle me-2"></i>Continue Learning
+                        </a>
+                    {% else %}
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'payments:submit_for_course' course.slug %}" class="enroll-btn">
+                                <i class="bi bi-wallet2 me-2"></i> Enroll Now
+                            </a>
+                        {% else %}
+                            <a href="{% url 'accounts:register_student' %}?next={% url 'payments:submit_for_course' course.slug %}" class="enroll-btn">
+                                <i class="bi bi-wallet2 me-2"></i> Enroll Now
+                            </a>
+                        {% endif %}
+                    {% endif %}
+
+                    {% if is_admin_or_instructor %}
+                    <div class="mt-3 p-3 border rounded">
+                        <h6 class="fw-semibold mb-2">Instructor Tools</h6>
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'courses:section_create' course.id %}" class="btn btn-outline-primary btn-sm">
+                                Add Section
+                            </a>
+                            <a href="{% url 'courses:course_edit' course.id %}" class="btn btn-outline-secondary btn-sm">
+                                Edit Course
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Lesson Resources -->
+            <div class="sidebar-card">
+                <div class="sidebar-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-paperclip me-2"></i>Course Resources
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if enrolled or is_admin_or_instructor %}
+                        {% with has_files=False %}
+                            {% for section in sections %}
+                                {% for lesson in section.lessons.all %}
+                                    {% if lesson.attachments.all %}
+                                        {% if not has_files %}{% with has_files=True %}{% endwith %}{% endif %}
+                                        <div class="mb-3">
+                                            <h6 class="fw-bold mb-2">
+                                                <i class="bi bi-journal-text"></i> {{ lesson.title }}
+                                                {% if lesson.is_preview %}
+                                                    <span class="badge bg-info text-dark ms-1">Preview</span>
+                                                {% endif %}
+                                            </h6>
+                                            {% for file in lesson.attachments.all %}
+                                                <div class="attachment-item">
+                                                    <div class="d-flex align-items-center">
+                                                        <i class="bi bi-file-earmark me-2"></i>
+                                                        <span class="text-truncate">{{ file.title|default:file.file.name|cut:"uploads/" }}</span>
+                                                    </div>
+                                                    <div class="d-flex gap-1">
+                                                        <a href="{{ file.file.url }}" class="btn btn-sm btn-primary" download>
+                                                            <i class="bi bi-download"></i>
+                                                        </a>
+                                                        {% if is_admin_or_instructor %}
+                                                        <form method="post" action="{% url 'courses:delete_lesson_attachment' file.id %}" class="d-inline">
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this file?')">
+                                                                <i class="bi bi-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endfor %}
+                            {% if not has_files %}
+                                <p class="text-muted text-center mb-0">
+                                    <i class="bi bi-inbox display-6 d-block mb-2"></i>
+                                    No resources available yet
+                                </p>
+                            {% endif %}
+                        {% endwith %}
+                    {% else %}
+                        <div class="text-center">
+                            <i class="bi bi-lock display-4 text-muted"></i>
+                            <p class="text-muted mt-2">Enroll in the course to access resources</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

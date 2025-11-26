@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}My Courses | Instructor Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold text-primary">
+      <i class="bi bi-book"></i> My Courses
+    </h2>
+    <a href="{% url 'courses:course_create' %}" class="btn btn-success">
+      <i class="bi bi-plus-circle"></i> Create New Course
+    </a>
+  </div>
+
+  <!-- Courses Table -->
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+      {% if courses %}
+      <div class="table-responsive">
+        <table class="table align-middle table-hover">
+          <thead class="table-light">
+            <tr>
+              <th>Thumbnail</th>
+              <th>Title</th>
+              <th>Category</th>
+              <th>Status</th>
+              <th>Price (&#2547;)</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for course in courses %}
+            <tr>
+              <td>
+                {% if course.thumbnail %}
+                <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}" class="rounded" style="width: 70px; height: 45px; object-fit: cover;">
+                {% else %}
+                <div class="bg-secondary text-white d-flex align-items-center justify-content-center rounded" style="width: 70px; height: 45px;">
+                  <i class="bi bi-image"></i>
+                </div>
+                {% endif %}
+              </td>
+              <td class="fw-semibold">{{ course.title }}</td>
+              <td>
+                {% if course.category %}
+                  {{ course.category.name }}
+                {% else %}
+                  <span class="text-muted">Uncategorized</span>
+                {% endif %}
+              </td>
+              <td>
+                {% with course.status|lower as st %}
+                  {% if st == "approved" %}
+                    <span class="badge bg-success">Approved</span>
+                  {% elif st == "published" %}
+                    <span class="badge bg-success">Published</span>
+                  {% elif st == "pending" %}
+                    <span class="badge bg-warning text-dark">Pending</span>
+                  {% elif st == "rejected" %}
+                    <span class="badge bg-danger">Rejected</span>
+                  {% else %}
+                    <span class="badge bg-secondary">{{ course.status|default:"Draft" }}</span>
+                  {% endif %}
+                {% endwith %}
+              </td>
+              <td>&#2547;{{ course.price|default:"0" }}</td>
+              <td>{{ course.created_at|date:"M d, Y" }}</td>
+              <td>
+                <div class="btn-group">
+                  <a href="{% url 'instructor_tool:course_manage' course.id %}" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-gear"></i> Manage
+                  </a>
+                  <a href="{% url 'courses:course_detail' course.id %}" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-eye"></i> View
+                  </a>
+                  {% if course.status == 'draft' or course.status == 'rejected' %}
+                  <form method="post" action="{% url 'instructor_tool:resubmit_course' course.id %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-success">
+                      <i class="bi bi-send"></i> Submit for Approval
+                    </button>
+                  </form>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <p class="text-muted text-center mt-3">You haven't created any courses yet.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+

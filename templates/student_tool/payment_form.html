@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Submit Payment{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+  <h2 class="fw-bold mb-4"><i class="bi bi-wallet2"></i> Submit Payment</h2>
+
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+      <h5 class="mb-3 fw-semibold text-primary">{{ course.title }}</h5>
+      <p class="text-muted">Course Price: <strong>&#2547;{{ course.price }}</strong></p>
+
+      <form method="POST" class="mt-4">
+        {% csrf_token %}
+
+        <div class="mb-3">
+          <label for="provider" class="form-label fw-semibold">Select Payment Method</label>
+          <select id="provider" name="provider" class="form-select" required>
+            <option value="" selected disabled>-- Select Payment Method --</option>
+            <option value="bkash">bKash</option>
+            <option value="nagad">Nagad</option>
+            <option value="rocket">Rocket</option>
+            <option value="bank">Bank Transfer</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label for="provider_tx_id" class="form-label fw-semibold">Transaction ID</label>
+          <input type="text" id="provider_tx_id" name="provider_tx_id" class="form-control"
+                 placeholder="Enter your Bkash/Nagad/Rocket Tx ID" required>
+        </div>
+
+        <div class="mb-3">
+          <label for="amount" class="form-label fw-semibold">Amount</label>
+          <input type="number" id="amount" name="amount" class="form-control" value="{{ course.price }}" readonly>
+        </div>
+
+        <button type="submit" class="btn btn-success w-100 py-2 mt-3">
+          <i class="bi bi-send-check"></i> Submit Payment
+        </button>
+      </form>
+
+      <div class="alert alert-info mt-4">
+        <i class="bi bi-info-circle"></i> Please contact us after submitting your payment.
+        Our admin will verify your transaction and approve your enrollment soon.
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Enrolled Students{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <h3 class="fw-bold text-primary mb-0"><i class="bi bi-people"></i> Enrolled Students</h3>
+  </div>
+
+  {% if courses %}
+  <div class="accordion" id="studentsAccordion">
+    {% for course in courses %}
+    <div class="accordion-item mb-2 shadow-sm border-0">
+      <h2 class="accordion-header" id="heading{{ course.id }}">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ course.id }}" aria-expanded="false" aria-controls="collapse{{ course.id }}">
+          {{ course.title }} ({{ course.enrollments.all|length }} students)
+        </button>
+      </h2>
+      <div id="collapse{{ course.id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ course.id }}" data-bs-parent="#studentsAccordion">
+        <div class="accordion-body">
+          {% if course.enrollments.all %}
+            <ul class="list-group list-group-flush">
+              {% for enrollment in course.enrollments.all %}
+              <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
+                <div>
+                  <div class="fw-semibold">{{ enrollment.user.get_full_name|default:enrollment.user.username }}</div>
+                  <div class="text-muted small">{{ enrollment.user.email|default:"—" }}</div>
+                </div>
+                <div class="text-end">
+                  <div class="progress" style="height: 12px; width: 140px;">
+                    <div class="progress-bar bg-success" style="width: {{ enrollment.progress|default:0 }}%"></div>
+                  </div>
+                  <a href="{% url 'instructor_tool:course_student_profile' course.id enrollment.user.id %}" class="btn btn-sm btn-outline-primary mt-2">View Profile</a>
+                </div>
+              </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="text-muted mb-0">No students enrolled yet.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+    <div class="alert alert-info">No courses found.</div>
+  {% endif %}
+</div>
+{% endblock %}

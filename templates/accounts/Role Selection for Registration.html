@@ -1,0 +1,592 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Select Your Role{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --primary: #3498db;
+        --secondary: #2c3e50;
+        --success: #27ae60;
+        --info: #17a2b8;
+        --danger: #e74c3c;
+        --light: #f8f9fa;
+        --dark: #1a1a1a;
+        --gradient-primary: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);
+        --gradient-success: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        --gradient-info: linear-gradient(135deg, #17a2b8 0%, #3498db 100%);
+        --gradient-danger: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        --shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .role-selection-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--light);
+        position: relative;
+        overflow: hidden;
+        padding: 2rem 0;
+    }
+
+    .role-selection-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" opacity="0.03"><polygon fill="%233498db" points="0,0 1000,1000 0,1000"/></svg>');
+        background-size: cover;
+    }
+
+    .role-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: var(--shadow-lg);
+        padding: 3rem;
+        max-width: 900px;
+        width: 100%;
+        position: relative;
+        z-index: 2;
+        animation: fadeInUp 0.8s ease-out;
+    }
+
+    .role-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: var(--gradient-primary);
+        border-radius: 20px 20px 0 0;
+    }
+
+    .role-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .role-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+    }
+
+    .role-subtitle {
+        color: var(--secondary);
+        font-size: 1.1rem;
+        opacity: 0.8;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .role-options-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .role-option-wrapper {
+        position: relative;
+    }
+
+    .btn-check {
+        position: absolute;
+        opacity: 0;
+    }
+
+    .role-option {
+        border: 2px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 2.5rem 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        background: white;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        min-height: 280px;
+    }
+
+    .role-option:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow);
+        border-color: var(--primary);
+    }
+
+    /* Active states for each role */
+    #student:checked + .role-option-wrapper > .role-option {
+    background: var(--gradient-success);
+    color: white;
+    border-color: transparent;
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+#instructor:checked + .role-option-wrapper > .role-option {
+    background: var(--gradient-info);
+    color: white;
+    border-color: transparent;
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+#admin:checked + .role-option-wrapper > .role-option {
+    background: var(--gradient-danger);
+    color: white;
+    border-color: transparent;
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+    .role-icon {
+        font-size: 3.5rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    #student:checked ~ .role-option-wrapper > .role-option .role-icon,
+    #instructor:checked ~ .role-option-wrapper > .role-option .role-icon,
+    #admin:checked ~ .role-option-wrapper > .role-option .role-icon {
+        transform: scale(1.1);
+    }
+
+    .role-name {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .role-description {
+        font-size: 0.95rem;
+        opacity: 0.9;
+        line-height: 1.5;
+    }
+
+    .btn-continue {
+        width: 100%;
+        padding: 1.2rem 2rem;
+        background: var(--gradient-primary);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.2rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        margin-top: 1rem;
+    }
+
+    .btn-continue:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(52, 152, 219, 0.3);
+    }
+
+    .btn-continue:active {
+        transform: translateY(0);
+    }
+
+    .btn-continue:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .login-section {
+        text-align: center;
+        padding-top: 2rem;
+        border-top: 1px solid #e2e8f0;
+        margin-top: 2rem;
+    }
+
+    .login-text {
+        color: var(--secondary);
+        font-size: 1rem;
+    }
+
+    .login-text a {
+        color: var(--primary);
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .login-text a:hover {
+        color: var(--secondary);
+        text-decoration: underline;
+    }
+
+    .alert {
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
+        border: none;
+        text-align: center;
+        font-weight: 500;
+    }
+
+    .alert-danger {
+        background: rgba(231, 76, 60, 0.1);
+        color: var(--danger);
+        border: 1px solid rgba(231, 76, 60, 0.2);
+    }
+
+    /* Floating Elements */
+    .floating-elements {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .floating-element {
+        position: absolute;
+        border-radius: 50%;
+        background: var(--gradient-primary);
+        opacity: 0.1;
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .floating-element:nth-child(1) {
+        width: 100px;
+        height: 100px;
+        top: 10%;
+        left: 10%;
+        animation-delay: 0s;
+    }
+
+    .floating-element:nth-child(2) {
+        width: 150px;
+        height: 150px;
+        top: 60%;
+        left: 80%;
+        animation-delay: 2s;
+    }
+
+    .floating-element:nth-child(3) {
+        width: 80px;
+        height: 80px;
+        top: 80%;
+        left: 20%;
+        animation-delay: 4s;
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes float {
+        0%, 100% {
+            transform: translateY(0) rotate(0deg);
+        }
+        50% {
+            transform: translateY(-20px) rotate(10deg);
+        }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 992px) {
+        .role-options-grid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .role-option {
+            padding: 2rem 1rem;
+            min-height: 250px;
+        }
+
+        .role-icon {
+            font-size: 3rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .role-card {
+            padding: 2rem;
+            margin: 1rem;
+        }
+
+        .role-title {
+            font-size: 2rem;
+        }
+
+        .role-options-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .role-option {
+            min-height: 200px;
+            padding: 1.5rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .role-card {
+            padding: 1.5rem;
+        }
+
+        .role-title {
+            font-size: 1.75rem;
+        }
+
+        .role-option {
+            padding: 1.5rem 1rem;
+        }
+
+        .role-icon {
+            font-size: 2.5rem;
+        }
+
+        .role-name {
+            font-size: 1.3rem;
+        }
+    }
+</style>
+
+<div class="role-selection-container">
+    <!-- Floating Elements -->
+    <div class="floating-elements">
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+    </div>
+
+    <div class="role-card">
+        <div class="role-header">
+            <h1 class="role-title">
+                <i class="bi bi-person-lines-fill"></i> Choose Your Role
+            </h1>
+            <p class="role-subtitle">
+                Select how you'd like to join our learning community. Your role determines the features and access you'll have on our platform.
+            </p>
+        </div>
+
+        {% if error %}
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                {{ error }}
+            </div>
+        {% endif %}
+
+        <form id="roleForm" method="post">
+            {% csrf_token %}
+            {% if next %}
+                <input type="hidden" name="next" value="{{ next }}">
+            {% endif %}
+
+            <div class="role-options-grid">
+                <!-- Student Option -->
+                <input type="radio" class="btn-check" name="role" id="student" value="student" autocomplete="off">
+                <div class="role-option-wrapper">
+                    <label class="role-option" for="student">
+                        <div class="role-icon">
+                            <i class="bi bi-mortarboard"></i>
+                        </div>
+                        <div class="role-name">I'm a Student</div>
+                        <div class="role-description">
+                            Join courses, learn new skills, and advance your career with our expert-led programs.
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Instructor Option -->
+                <input type="radio" class="btn-check" name="role" id="instructor" value="instructor" autocomplete="off">
+                <div class="role-option-wrapper">
+                    <label class="role-option" for="instructor">
+                        <div class="role-icon">
+                            <i class="bi bi-person-badge"></i>
+                        </div>
+                        <div class="role-name">I'm an Instructor</div>
+                        <div class="role-description">
+                            Share your expertise, create courses, and inspire the next generation of learners.
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Admin Option -->
+                <input type="radio" class="btn-check" name="role" id="admin" value="admin" autocomplete="off">
+                <div class="role-option-wrapper">
+                    <label class="role-option" for="admin">
+                        <div class="role-icon">
+                            <i class="bi bi-shield-lock"></i>
+                        </div>
+                        <div class="role-name">I'm an Admin</div>
+                        <div class="role-description">
+                            Manage platform operations, users, and content with comprehensive administrative tools.
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <button type="submit" id="continueBtn" class="btn-continue">
+                <i class="bi bi-arrow-right-circle"></i> Continue to Registration
+            </button>
+        </form>
+
+        <div class="login-section">
+            <p class="login-text">
+                Already have an account?
+                <a href="{% url 'accounts:login' %}">Login here</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const roleInputs = document.querySelectorAll("input[name='role']");
+        const continueBtn = document.getElementById("continueBtn");
+        const form = document.getElementById('roleForm');
+
+        // Add visual feedback when a role is selected
+        roleInputs.forEach(input => {
+            input.addEventListener("change", () => {
+                // Remove any existing error messages
+                const errorAlert = document.querySelector('.alert-danger:not([data-original])');
+                if (errorAlert) {
+                    errorAlert.remove();
+                }
+
+                // Add button animation feedback
+                continueBtn.style.transform = "translateY(-2px)";
+                setTimeout(() => {
+                    continueBtn.style.transform = "translateY(0)";
+                }, 150);
+            });
+        });
+
+        // Add form submission validation
+        form.addEventListener('submit', function(e) {
+            const selectedRole = document.querySelector('input[name="role"]:checked');
+            if (!selectedRole) {
+                e.preventDefault();
+
+                // Show visual feedback that a role must be selected
+                const roleOptions = document.querySelectorAll('.role-option');
+                roleOptions.forEach(option => {
+                    option.style.animation = 'shake 0.5s ease-in-out';
+                });
+
+                setTimeout(() => {
+                    roleOptions.forEach(option => {
+                        option.style.animation = '';
+                    });
+                }, 500);
+
+                // Show error message (only if not already showing)
+                let errorAlert = document.querySelector('.alert-danger:not([data-original])');
+                if (!errorAlert) {
+                    errorAlert = document.createElement('div');
+                    errorAlert.className = 'alert alert-danger';
+                    errorAlert.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i>Please select a role to continue';
+                    const existingAlert = document.querySelector('.alert-danger[data-original]');
+                    if (existingAlert) {
+                        existingAlert.after(errorAlert);
+                    } else {
+                        form.insertBefore(errorAlert, form.querySelector('.role-options-grid'));
+                    }
+                }
+                return;
+            }
+
+            // Remove any custom error messages (keep original server errors)
+            const customErrorAlert = document.querySelector('.alert-danger:not([data-original])');
+            if (customErrorAlert) {
+                customErrorAlert.remove();
+            }
+
+            // Show loading state
+            const originalText = continueBtn.innerHTML;
+            continueBtn.innerHTML = '<i class="bi bi-arrow-repeat spinner"></i> Processing...';
+            continueBtn.disabled = true;
+
+            // Re-enable after 5 seconds (in case of error)
+            setTimeout(() => {
+                continueBtn.innerHTML = originalText;
+                continueBtn.disabled = false;
+            }, 5000);
+        });
+
+        // Add hover effects for role options
+        document.querySelectorAll('.role-option').forEach(option => {
+            option.addEventListener('mouseenter', function() {
+                const input = document.querySelector(`#${this.htmlFor}`);
+                if (!input.checked) {
+                    this.style.transform = 'translateY(-5px)';
+                    this.style.boxShadow = 'var(--shadow)';
+                    this.style.borderColor = 'var(--primary)';
+                }
+            });
+
+            option.addEventListener('mouseleave', function() {
+                const input = document.querySelector(`#${this.htmlFor}`);
+                if (!input.checked) {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = 'none';
+                    this.style.borderColor = '#e2e8f0';
+                }
+            });
+        });
+
+        // Mark original server error if exists
+        const originalError = document.querySelector('.alert-danger');
+        if (originalError) {
+            originalError.setAttribute('data-original', 'true');
+        }
+
+        // Add spinner animation style
+        const style = document.createElement('style');
+        style.textContent = `
+            .spinner {
+                animation: spin 1s linear infinite;
+            }
+
+            @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                25% { transform: translateX(-5px); }
+                75% { transform: translateX(5px); }
+            }
+        `;
+        document.head.appendChild(style);
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Certificate Verification{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h3 class="fw-bold mb-3"><i class="bi bi-patch-check"></i> Verify Certificate</h3>
+          <p class="text-muted">Enter the certificate serial to confirm authenticity.</p>
+          <form method="get" class="row g-2 align-items-end mb-4">
+            <div class="col-md-9">
+              <label class="form-label small text-muted">Certificate Serial</label>
+              <input type="text" name="code" value="{{ code }}" class="form-control" placeholder="e.g., CERT-1234-5678" required>
+            </div>
+            <div class="col-md-3">
+              <button class="btn btn-primary w-100"><i class="bi bi-search"></i> Verify</button>
+            </div>
+          </form>
+
+          {% if code %}
+            {% if certificate %}
+              <div class="alert alert-success d-flex align-items-start">
+                <div class="me-2"><i class="bi bi-check2-circle fs-4"></i></div>
+                <div>
+                  <h5 class="mb-1">Certificate Valid</h5>
+                  <p class="mb-1"><strong>Serial:</strong> {{ certificate.serial }}</p>
+                  <p class="mb-1"><strong>Student:</strong> {{ certificate.user.get_full_name|default:certificate.user.username }}</p>
+                  <p class="mb-1"><strong>Course:</strong> {{ certificate.course.title }}</p>
+                  <p class="mb-0"><strong>Issued:</strong> {{ certificate.issued_at|date:"M d, Y" }}</p>
+                </div>
+              </div>
+            {% else %}
+              <div class="alert alert-danger d-flex align-items-start">
+                <div class="me-2"><i class="bi bi-x-circle fs-4"></i></div>
+                <div>
+                  <h5 class="mb-1">Certificate Not Found</h5>
+                  <p class="mb-0 text-muted">No certificate matched the serial you entered.</p>
+                </div>
+              </div>
+            {% endif %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

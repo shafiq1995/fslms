@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Instructors - Future Skill{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+  <div class="d-flex align-items-center mb-4">
+    <h2 class="fw-bold me-3"><i class="bi bi-people"></i> Instructors</h2>
+
+    <form class="ms-auto d-flex" method="get">
+      <input type="text" name="q" value="{{ q }}" class="form-control form-control-sm me-2" placeholder="Search instructors...">
+      <button class="btn btn-sm btn-primary" type="submit"><i class="bi bi-search"></i></button>
+    </form>
+  </div>
+
+  {% if instructors %}
+  <div class="row g-4">
+    {% for inst in instructors %}
+    <div class="col-sm-6 col-md-4 col-lg-3">
+      <div class="card h-100 shadow-sm instructor-card">
+        <div class="card-body text-center">
+          {% if inst.avatar %}
+            <img src="{{ inst.avatar.url }}" class="rounded-circle mb-3" width="100" height="100" style="object-fit:cover;">
+          {% elif inst.profile and inst.profile.profile_picture %}
+            <img src="{{ inst.profile.profile_picture.url }}" class="rounded-circle mb-3" width="100" height="100" style="object-fit:cover;">
+          {% else %}
+            <img src="{% static 'images/default instructor image.jpg' %}" class="rounded-circle mb-3" width="100" height="100" style="object-fit:cover;">
+          {% endif %}
+
+          <h5 class="card-title mb-1">{{ inst.get_full_name|default:inst.username }}</h5>
+          {% if inst.professional_title %}
+          <p class="text-muted small mb-2">{{ inst.professional_title }}</p>
+          {% endif %}
+
+          <p class="text-muted small mb-3">{{ inst.bio|truncatewords:18 }}</p>
+
+          <div class="d-flex justify-content-center gap-2 mb-2">
+            <a href="{% url 'instructor_tool:detail' inst.id %}" class="btn btn-sm btn-outline-primary">View Profile</a>
+            <a href="{% url 'courses:course_list' %}?instructor={{ inst.id }}" class="btn btn-sm btn-outline-secondary">View Courses</a>
+          </div>
+
+          <div class="d-flex justify-content-center gap-2">
+            {% if inst.linkedin %}
+              <a href="{{ inst.linkedin }}" target="_blank" class="text-decoration-none"><i class="bi bi-linkedin fs-5"></i></a>
+            {% endif %}
+            {% if inst.twitter %}
+              <a href="{{ inst.twitter }}" target="_blank" class="text-decoration-none"><i class="bi bi-twitter fs-5"></i></a>
+            {% endif %}
+            {% if inst.website %}
+              <a href="{{ inst.website }}" target="_blank" class="text-decoration-none"><i class="bi bi-globe fs-5"></i></a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination -->
+  <nav aria-label="Instructors pagination" class="mt-4">
+    <ul class="pagination justify-content-center">
+      {% if instructors.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?q={{ q|urlencode }}&page={{ instructors.previous_page_number }}" aria-label="Previous">
+          &laquo;
+        </a>
+      </li>
+      {% else %}
+      <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+      {% endif %}
+
+      {% for p in instructors.paginator.page_range %}
+  {% if p == instructors.number %}
+    <li class="page-item active"><span class="page-link">{{ p }}</span></li>
+  {% elif p >= instructors.number|add:-2 and p <= instructors.number|add:2 %}
+    <li class="page-item"><a class="page-link" href="?q={{ q|urlencode }}&page={{ p }}">{{ p }}</a></li>
+  {% endif %}
+{% endfor %}
+
+      {% if instructors.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?q={{ q|urlencode }}&page={{ instructors.next_page_number }}" aria-label="Next">
+          &raquo;
+        </a>
+      </li>
+      {% else %}
+      <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+      {% endif %}
+    </ul>
+  </nav>
+
+  {% else %}
+  <div class="text-center py-5">
+    <p class="text-muted">No instructors found.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

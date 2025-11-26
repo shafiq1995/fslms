@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Students - {{ course.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <h3 class="fw-bold text-primary mb-1"><i class="bi bi-people"></i> Students in {{ course.title }}</h3>
+      <p class="text-muted mb-0">Total: {{ enrollments|length }}</p>
+    </div>
+    <a href="{% url 'instructor_tool:course_manage' course.id %}" class="btn btn-outline-secondary">
+      <i class="bi bi-arrow-left"></i> Back to Manage
+    </a>
+  </div>
+
+  {% if enrollments %}
+  <div class="card shadow-sm border-0">
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Student</th>
+            <th>Email</th>
+            <th>Progress</th>
+            <th>Enrolled</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for enrollment in enrollments %}
+          <tr>
+            <td class="fw-semibold">{{ enrollment.user.get_full_name|default:enrollment.user.username }}</td>
+            <td>{{ enrollment.user.email|default:"—" }}</td>
+            <td>
+              <div class="progress" style="height: 16px;">
+                <div class="progress-bar bg-success" style="width: {{ enrollment.progress|default:0 }}%">
+                  {{ enrollment.progress|default:0 }}%
+                </div>
+              </div>
+            </td>
+            <td>{{ enrollment.date_enrolled|date:"M d, Y" }}</td>
+            <td>
+              <a class="btn btn-sm btn-outline-primary" href="{% url 'instructor_tool:course_student_profile' course.id enrollment.user.id %}">
+                View Profile
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% else %}
+    <div class="alert alert-info">No students enrolled yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

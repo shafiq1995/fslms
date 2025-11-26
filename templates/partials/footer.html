@@ -1,0 +1,10 @@
+<footer class="bg-dark text-white text-center py-3 mt-auto">
+  <div class="container">
+    <p class="mb-1">&copy; {{ now.year|default:"2024" }} Future Skill. All rights reserved.</p>
+    <p class="mb-0 small">
+      <a href="{% url 'home:privacy' %}" class="text-light text-decoration-none">Privacy Policy</a> |
+      <a href="{% url 'home:terms' %}" class="text-light text-decoration-none">Terms of Service</a> |
+      <a href="{% url 'home:cookies' %}" class="text-light text-decoration-none">Cookie Policy</a>
+    </p>
+  </div>
+</footer>

@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Manage Course - {{ course.title }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+
+  <!-- ===== Course Header ===== -->
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+      <h2 class="fw-bold text-primary mb-1">{{ course.title }}</h2>
+      <a href="{% url 'instructor_tool:course_progress' course.id %}" class="btn btn-outline-success btn-sm">
+        <i class="bi bi-bar-chart-line"></i> View Progress
+      </a>
+      <p class="text-muted mb-0 mt-1">
+        <i class="bi bi-person-circle"></i>
+        {{ course.instructor.get_full_name|default:course.instructor.username }} |
+        <i class="bi bi-tags"></i> {{ course.category.name|default:"Uncategorized" }}
+      </p>
+    </div>
+
+    <a href="{% url 'instructor_tool:course_list' %}" class="btn btn-outline-secondary">
+      <i class="bi bi-arrow-left"></i> Back to My Courses
+    </a>
+  </div>
+
+  <!-- ===== Course Overview ===== -->
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body d-flex justify-content-between align-items-start flex-wrap gap-3">
+      <div>
+        <h5 class="fw-bold mb-2">Course Overview</h5>
+        <p class="text-muted mb-2">{{ course.description|truncatewords:30 }}</p>
+        <p class="mb-0">
+          <strong>Status:</strong>
+          {% with course.status|lower as st %}
+            {% if st == 'approved' %}
+              <span class="badge bg-success">Approved</span>
+            {% elif st == 'published' %}
+              <span class="badge bg-success">Published</span>
+            {% elif st == 'pending' %}
+              <span class="badge bg-warning text-dark">Pending</span>
+            {% elif st == 'rejected' %}
+              <span class="badge bg-danger text-white">Rejected</span>
+            {% else %}
+              <span class="badge bg-secondary">{{ course.status|default:"Draft" }}</span>
+            {% endif %}
+          {% endwith %}
+        </p>
+        {% if course.status_note %}
+        <p class="small text-muted mb-0 mt-1">
+          <i class="bi bi-info-circle"></i> {{ course.status_note }}
+        </p>
+        {% endif %}
+        {% if course.status == 'rejected' %}
+          <p class="small text-danger mb-0 mt-1">Course was rejected. Update details and resubmit for approval.</p>
+        {% elif course.status == 'draft' %}
+          <p class="small text-muted mb-0 mt-1">Finish your content then submit for admin approval.</p>
+        {% endif %}
+      </div>
+
+      <div class="text-end">
+        <a href="{% url 'courses:course_edit' course.id %}" class="btn btn-sm btn-outline-primary me-2">
+          <i class="bi bi-pencil"></i> Edit
+        </a>
+        <a href="{% url 'instructor_tool:course_students' course.id %}" class="btn btn-sm btn-outline-success me-2">
+          <i class="bi bi-people"></i> Students
+        </a>
+        <a href="{% url 'instructor_tool:course_certificates' course.id %}" class="btn btn-sm btn-outline-secondary me-2">
+          <i class="bi bi-award"></i> Certificates
+        </a>
+        {% if course.status == 'draft' or course.status == 'rejected' %}
+        <div class="small text-muted mb-2">
+          <i class="bi bi-info-circle"></i> Please ensure category and short description are filled before resubmitting.
+        </div>
+        <form method="post" action="{% url 'instructor_tool:resubmit_course' course.id %}" class="d-inline">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-sm btn-success me-2">
+            <i class="bi bi-send"></i> Resubmit for Approval
+          </button>
+        </form>
+        {% endif %}
+        <a href="{% url 'courses:course_delete' course.id %}" class="btn btn-sm btn-outline-danger">
+                  <i class="bi bi-trash"></i> Delete
+                </a>
+              </div>
+            </div>
+          </div>
+
+  <!-- ===== Add New Section ===== -->
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+      <h5 class="fw-bold mb-3"><i class="bi bi-layers"></i> Add New Section</h5>
+      <form method="post">
+        {% csrf_token %}
+        <div class="row g-3 align-items-end">
+          <div class="col-md-5">{{ section_form.title.label_tag }} {{ section_form.title }}</div>
+          <div class="col-md-6">{{ section_form.description.label_tag }} {{ section_form.description }}</div>
+          <div class="col-md-1 d-grid">
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-plus-circle"></i>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== Sections & Lessons ===== -->
+  <div class="accordion" id="sectionsAccordion">
+    {% if sections %}
+      {% for section in sections %}
+        <div class="accordion-item shadow-sm border-0 mb-3">
+          <h2 class="accordion-header" id="heading{{ section.id }}">
+            <button class="accordion-button collapsed fw-semibold" type="button"
+                    data-bs-toggle="collapse" data-bs-target="#collapse{{ section.id }}"
+                    aria-expanded="false" aria-controls="collapse{{ section.id }}">
+              <i class="bi bi-folder2-open me-2"></i> {{ section.title }}
+            </button>
+          </h2>
+
+          <div id="collapse{{ section.id }}" class="accordion-collapse collapse"
+               aria-labelledby="heading{{ section.id }}" data-bs-parent="#sectionsAccordion">
+            <div class="accordion-body">
+              <p class="text-muted">{{ section.description|default:"No description provided." }}</p>
+
+              <!-- Section Actions -->
+              <div class="mb-3 text-end">
+                <a href="{% url 'instructor_tool:section_manage' course.id section.id %}"
+                   class="btn btn-sm btn-outline-primary me-1">
+                  <i class="bi bi-pencil"></i> Edit Section
+                </a>
+                <form method="post" action="{% url 'courses:section_move' course.id section.id 'up' %}" class="d-inline">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-outline-secondary" title="Move up">
+                    <i class="bi bi-arrow-up"></i>
+                  </button>
+                </form>
+                <form method="post" action="{% url 'courses:section_move' course.id section.id 'down' %}" class="d-inline">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-outline-secondary" title="Move down">
+                    <i class="bi bi-arrow-down"></i>
+                  </button>
+                </form>
+                <form method="post" action="{% url 'courses:section_delete' course.id section.id %}"
+                      class="d-inline">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-trash"></i> Delete
+                  </button>
+                </form>
+                <a href="{% url 'courses:lesson_create' section.id %}"
+                   class="btn btn-sm btn-success ms-1">
+                  <i class="bi bi-plus-circle"></i> Add Lesson
+                </a>
+              </div>
+
+              <!-- Lessons -->
+              {% if section.lessons.all %}
+                <ul class="list-group list-group-flush">
+                  {% for lesson in section.lessons.all %}
+                    <li class="list-group-item d-flex justify-content-between align-items-start flex-wrap">
+                      <div>
+                        <h6 class="fw-bold mb-1">
+                          <i class="bi bi-journal-text"></i> {{ lesson.title }}
+                          {% if not lesson.is_published %}
+                            <span class="badge bg-secondary">Draft</span>
+                          {% endif %}
+                        </h6>
+                        <p class="small text-muted">{{ lesson.content|truncatewords:25|default:"No content." }}</p>
+
+                        {% if lesson.attachments.all %}
+                          <h6 class="fw-bold mt-2"><i class="bi bi-paperclip"></i> Attachments:</h6>
+                          <ul class="list-group list-group-flush">
+                            {% for file in lesson.attachments.all %}
+                              <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>{{ file.title|default:file.file.name|cut:"uploads/" }}</span>
+                                <a href="{{ file.file.url }}" download class="btn btn-sm btn-outline-primary">
+                                  <i class="bi bi-download"></i> Download
+                                </a>
+                              </li>
+                            {% endfor %}
+                          </ul>
+                        {% endif %}
+                      </div>
+
+                      <div class="text-end">
+                        <a href="{% url 'instructor_tool:lesson_manage' course.id lesson.id %}"
+                           class="btn btn-sm btn-outline-success me-1">
+                          <i class="bi bi-pencil"></i>
+                        </a>
+                        <form method="post" action="{% url 'courses:lesson_move' course.id lesson.id 'up' %}" class="d-inline">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-sm btn-outline-secondary" title="Move up">
+                            <i class="bi bi-arrow-up"></i>
+                          </button>
+                        </form>
+                        <form method="post" action="{% url 'courses:lesson_move' course.id lesson.id 'down' %}" class="d-inline">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-sm btn-outline-secondary" title="Move down">
+                            <i class="bi bi-arrow-down"></i>
+                          </button>
+                        </form>
+                        <form method="post"
+                              action="{% url 'courses:lesson_delete' course.id lesson.id %}"
+                              class="d-inline">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-sm btn-outline-danger">
+                            <i class="bi bi-trash"></i>
+                          </button>
+                        </form>
+                      </div>
+                    </li>
+                  {% endfor %}
+                </ul>
+              {% else %}
+                <p class="text-muted">No lessons added yet.</p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p class="text-center text-muted mt-3">No sections added yet.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

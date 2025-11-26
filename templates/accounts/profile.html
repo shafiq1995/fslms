@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card shadow border-0 rounded-4">
+        <div class="card-body p-4">
+
+          <!-- HEADER -->
+          <div class="text-center mb-4">
+            {% if user.profile and user.profile.profile_picture %}
+              <img src="{{ user.profile.profile_picture.url }}" alt="Profile Picture"
+                   class="rounded-circle shadow-sm mb-3" width="120" height="120">
+            {% else %}
+              <img src="{% static 'images/default-avatar.jpg' %}" alt="Default Avatar"
+                   class="rounded-circle shadow-sm mb-3" width="120" height="120">
+            {% endif %}
+            <h3 class="fw-bold text-primary mb-0"><i class="bi bi-person-circle"></i> {{ user.get_full_name|default:user.username }}</h3>
+            <p class="text-muted small mb-0">Role: {{ user.role|default:"student"|title }}</p>
+          </div>
+
+          <!-- PROFILE COMPLETION -->
+          <div class="mb-4">
+            <p class="fw-semibold text-center text-secondary mb-1">Profile Completion</p>
+            <div class="progress" style="height: 18px;">
+              <div class="progress-bar bg-success" style="width: {{ completion.percent|default:50 }}%">
+                {{ completion.percent|default:50 }}%
+              </div>
+            </div>
+            {% if completion.missing %}
+            <div class="alert alert-warning mt-2 mb-0">
+              <div class="fw-semibold small mb-1">Complete your profile:</div>
+              <ul class="mb-0 small ps-3">
+                {% for item in completion.missing %}
+                  <li>{{ item }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- COMMON INFO -->
+          <ul class="list-group list-group-flush mb-4">
+            <li class="list-group-item"><strong>Username:</strong> {{ user.username }}</li>
+            <li class="list-group-item"><strong>Email:</strong> {{ user.email|default:"N/A" }}</li>
+            <li class="list-group-item"><strong>Phone:</strong> {% if user.profile %}{{ user.profile.phone|default:"N/A" }}{% else %}N/A{% endif %}</li>
+            <li class="list-group-item"><strong>City:</strong> {% if user.profile %}{{ user.profile.city|default:"N/A" }}{% else %}N/A{% endif %}</li>
+            <li class="list-group-item"><strong>Country:</strong> {% if user.profile %}{{ user.profile.country|default:"N/A" }}{% else %}N/A{% endif %}</li>
+          </ul>
+
+          <!-- ADMIN INFO -->
+          {% if user.role == 'admin' %}
+          <div class="border-top pt-3">
+            <h5 class="fw-bold mb-3 text-primary"><i class="bi bi-shield-lock"></i> Admin Information</h5>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item"><strong>Last Login:</strong> {{ user.last_login|date:"d M Y, h:i A" }}</li>
+              <li class="list-group-item"><strong>Superuser:</strong> {% if user.is_superuser %}Yes{% else %}No{% endif %}</li>
+              <li class="list-group-item"><strong>Staff Access:</strong> {% if user.is_staff %}Yes{% else %}No{% endif %}</li>
+            </ul>
+          </div>
+          {% endif %}
+
+          <!-- INSTRUCTOR INFO -->
+          {% if user.role == 'instructor' and user.instructorprofile %}
+          <div class="border-top pt-3">
+            <h5 class="fw-bold mb-3 text-primary"><i class="bi bi-mortarboard"></i> Instructor Details</h5>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item"><strong>Professional Title:</strong> {{ user.instructorprofile.professional_title|default:"N/A" }}</li>
+              <li class="list-group-item"><strong>Education:</strong> {{ user.instructorprofile.education|default:"N/A" }}</li>
+              <li class="list-group-item"><strong>Experience:</strong> {{ user.instructorprofile.experience_years|default:"0" }} years</li>
+              <li class="list-group-item"><strong>Skills:</strong> {{ user.instructorprofile.skills|default:"N/A" }}</li>
+              <li class="list-group-item"><strong>Expertise:</strong> {{ user.instructorprofile.expertise_area|default:"N/A" }}</li>
+              <li class="list-group-item"><strong>Rating:</strong> {{ user.instructorprofile.rating|default:"0.0" }}</li>
+              <li class="list-group-item">
+                <strong>Approval Status:</strong>
+                {% if user.is_approved %}
+                  <span class="badge bg-success">Approved</span>
+                {% elif user.instructorprofile and user.instructorprofile.approved_by_admin %}
+                  <span class="badge bg-success">Approved</span>
+                {% else %}
+                  <span class="badge bg-warning text-dark">Pending</span>
+                {% endif %}
+              </li>
+            </ul>
+          </div>
+          {% endif %}
+
+          <!-- LEARNER INFO -->
+          {% if user.role == 'learner' or user.role == 'student' %}
+          <div class="border-top pt-3">
+            <h5 class="fw-bold mb-3 text-primary"><i class="bi bi-book"></i> Learner Details</h5>
+            <ul class="list-group list-group-flush">
+              {% if user.learnerprofile %}
+              <li class="list-group-item"><strong>Education Level:</strong> {{ user.learnerprofile.education_level|default:"N/A" }}</li>
+              <li class="list-group-item"><strong>Institution:</strong> {{ user.learnerprofile.institution_name|default:"N/A" }}</li>
+              <li class="list-group-item"><strong>Learning Goal:</strong> {{ user.learnerprofile.learning_goal|default:"N/A" }}</li>
+              <li class="list-group-item"><strong>Preferred Language:</strong> {{ user.learnerprofile.preferred_language|default:"N/A" }}</li>
+              <li class="list-group-item"><strong>Interests:</strong> {{ user.learnerprofile.interests|default:"N/A" }}</li>
+              <li class="list-group-item"><strong>Courses Enrolled:</strong> {{ user.learnerprofile.total_courses_enrolled|default:"0" }}</li>
+              <li class="list-group-item"><strong>Certificates Earned:</strong> {{ user.learnerprofile.total_certificates|default:"0" }}</li>
+              {% else %}
+              <li class="list-group-item text-muted">No learner profile found.</li>
+              {% endif %}
+            </ul>
+          </div>
+          {% endif %}
+
+          <!-- FOOTER -->
+          <div class="text-center mt-4">
+            <a href="{% url 'accounts:complete_profile' %}" class="btn btn-success">
+              <i class="bi bi-pencil-square"></i> Complete My Profile
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

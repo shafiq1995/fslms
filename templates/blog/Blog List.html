@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Blog{% endblock %}
+{% block extra_css %}
+<link rel="canonical" href="{{ request.build_absolute_uri }}">
+{% if posts %}{% with first=posts.0 %}<meta name="description" content="{{ first.excerpt|default:first.content|truncatewords:25 }}">{% endwith %}{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0">Blog</h2>
+        <form class="d-flex" method="get">
+          <input class="form-control me-2" type="search" placeholder="Search posts" name="q" value="{{ q }}">
+          {% if tag %}<input type="hidden" name="tag" value="{{ tag }}">{% endif %}
+          <button class="btn btn-outline-primary" type="submit">Search</button>
+        </form>
+      </div>
+
+      {% if posts %}
+      <div class="row g-4">
+        {% for post in posts %}
+        <div class="col-md-6">
+          <div class="card h-100 shadow-sm">
+            {% if post.cover_image %}
+            <img src="{{ post.cover_image.url }}" class="card-img-top" alt="{{ post.title }}" style="width:100%; height:240px; object-fit:cover;">
+            {% endif %}
+            <div class="card-body">
+              <div class="text-muted small mb-2">
+                {{ post.created_at|date:"M d, Y" }}
+                {% if post.category %} · {{ post.category }}{% endif %}
+              </div>
+              <h5 class="card-title">{{ post.title }}</h5>
+              <p class="card-text text-muted">{{ post.excerpt|default:post.content|truncatewords:20 }}</p>
+              {% if post.tags %}
+              <div class="mb-2">
+                <span class="badge bg-light text-dark border me-1">{{ post.tags }}</span>
+              </div>
+              {% endif %}
+              <a href="{% url 'blog:detail' post.slug %}" class="btn btn-sm btn-outline-primary">Read more</a>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      {% if page_obj and page_obj.has_other_pages %}
+      <nav class="mt-4">
+        <ul class="pagination">
+          {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link" href="?{% if q %}q={{ q }}&{% endif %}{% if tag %}tag={{ tag }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a></li>
+          {% else %}
+            <li class="page-item disabled"><span class="page-link">Previous</span></li>
+          {% endif %}
+          <li class="page-item disabled"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+          {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link" href="?{% if q %}q={{ q }}&{% endif %}{% if tag %}tag={{ tag }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a></li>
+          {% else %}
+            <li class="page-item disabled"><span class="page-link">Next</span></li>
+          {% endif %}
+        </ul>
+      </nav>
+      {% endif %}
+      {% else %}
+        <p class="text-muted">No posts</p>
+      {% endif %}
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="fw-bold mb-3">Recent Posts</h5>
+          {% if recent_posts %}
+            <ul class="list-group list-group-flush">
+              {% for rp in recent_posts %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <a href="{% url 'blog:detail' rp.slug %}" class="text-decoration-none">{{ rp.title }}</a>
+                  <small class="text-muted">{{ rp.created_at|date:"M d" }}</small>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="text-muted mb-0">No recent posts.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

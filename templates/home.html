@@ -1,0 +1,1547 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}FS LMS - Online Learning Platform{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --accent: #f72585;
+            --success: #4cc9f0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gradient-primary: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+            --gradient-secondary: linear-gradient(135deg, #7209b7 0%, #560bad 100%);
+            --gradient-accent: linear-gradient(135deg, #f72585 0%, #b5179e 100%);
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        /* Header Styles */
+        .navbar {
+            padding: 1rem 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar.scrolled {
+            padding: 0.5rem 0;
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(10px);
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.8rem;
+            color: var(--primary);
+        }
+
+        .navbar-nav .nav-link {
+            font-weight: 500;
+            margin: 0 0.5rem;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: var(--primary);
+        }
+
+        .navbar-nav .nav-link.active {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        /* Hero Section */
+        .hero-carousel {
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .carousel-item {
+            height: 100vh;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+
+        .carousel-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(67, 97, 238, 0.85) 0%, rgba(58, 12, 163, 0.8) 100%);
+            z-index: 1;
+        }
+
+        .carousel-caption {
+            z-index: 2;
+            position: relative;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease forwards;
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease 0.3s forwards;
+        }
+
+        .hero-btn {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease 0.6s forwards;
+            padding: 12px 35px;
+            border-radius: 50px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .hero-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Section Styling */
+        section {
+            padding: 5rem 0;
+        }
+
+        .section-header {
+            margin-bottom: 4rem;
+        }
+
+        .section-subtitle {
+            color: var(--primary);
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            display: inline-block;
+            position: relative;
+        }
+
+        .section-subtitle::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: var(--accent);
+            border-radius: 3px;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .section-description {
+            font-size: 1.1rem;
+            color: #6c757d;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Enhanced Course Cards */
+        .course-card {
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            height: 100%;
+            box-shadow: var(--shadow);
+        }
+
+        .course-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .course-image {
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .course-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .course-card:hover .course-image img {
+            transform: scale(1.1);
+        }
+
+        .course-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            border-radius: 50px;
+            padding: 5px 15px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .course-body {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            height: calc(100% - 200px);
+        }
+
+        .course-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            line-height: 1.4;
+        }
+
+        .course-description {
+            color: #6c757d;
+            flex-grow: 1;
+            margin-bottom: 1.5rem;
+        }
+
+        .course-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .course-instructor {
+            display: flex;
+            align-items: center;
+        }
+
+        .instructor-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .course-price {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--primary);
+        }
+
+        .course-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+        }
+
+        .course-rating {
+            color: #ffc107;
+        }
+
+        .course-btn {
+            border-radius: 50px;
+            padding: 8px 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .course-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Enhanced Features Section */
+        .feature-card {
+            text-align: center;
+            padding: 2.5rem 1.5rem;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            height: 100%;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: var(--shadow);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            background: var(--gradient-primary);
+            color: white;
+            font-size: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover .feature-icon {
+            background: var(--gradient-accent);
+            transform: scale(1.1);
+        }
+
+        .feature-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .feature-description {
+            color: #6c757d;
+        }
+
+        /* Enhanced Statistics */
+        .statistics-section {
+            background: var(--gradient-primary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .statistics-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.1;
+        }
+
+        .statistic-item {
+            text-align: center;
+            color: white;
+            position: relative;
+            z-index: 1;
+        }
+
+        .statistic-counter {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .statistic-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .statistic-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            opacity: 0.8;
+        }
+
+        /* Enhanced Instructor Cards */
+        .instructor-card {
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            height: 100%;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .instructor-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .instructor-image {
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .instructor-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .instructor-card:hover .instructor-image img {
+            transform: scale(1.1);
+        }
+
+        .instructor-body {
+            padding: 1.5rem;
+        }
+
+        .instructor-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .instructor-title {
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .instructor-bio {
+            color: #6c757d;
+            margin-bottom: 1.5rem;
+        }
+
+        .instructor-social {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            color: #6c757d;
+            transition: all 0.3s ease;
+        }
+
+        .social-icon:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        /* Enhanced Blog Cards */
+        .blog-card {
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            height: 100%;
+            box-shadow: var(--shadow);
+        }
+
+        .blog-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .blog-image {
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .blog-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .blog-card:hover .blog-image img {
+            transform: scale(1.1);
+        }
+
+        .blog-body {
+            padding: 1.5rem;
+        }
+
+        .blog-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .blog-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+
+        .blog-excerpt {
+            color: #6c757d;
+            margin-bottom: 1.5rem;
+        }
+
+        .blog-link {
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .blog-link:hover {
+            color: var(--accent);
+            transform: translateX(5px);
+        }
+
+        /* Enhanced FAQ */
+        .faq-accordion .accordion-item {
+            border: none;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .faq-accordion .accordion-button {
+            background: white;
+            border: none;
+            padding: 1.5rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            box-shadow: none;
+        }
+
+        .faq-accordion .accordion-button:not(.collapsed) {
+            background: var(--primary);
+            color: white;
+            box-shadow: none;
+        }
+
+        .faq-accordion .accordion-button::after {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%234361ee'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+        }
+
+        .faq-accordion .accordion-button:not(.collapsed)::after {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='white'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+        }
+
+        .faq-accordion .accordion-body {
+            padding: 1.5rem;
+            background: #f8f9fa;
+        }
+
+        /* Enhanced Newsletter */
+        .newsletter-section {
+            background: var(--gradient-secondary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .newsletter-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.1;
+        }
+
+        .newsletter-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            color: white;
+        }
+
+        .newsletter-form {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .newsletter-input {
+            border: none;
+            border-radius: 50px;
+            padding: 12px 25px;
+            font-size: 1rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .newsletter-btn {
+            border: none;
+            border-radius: 50px;
+            padding: 12px 30px;
+            background: var(--accent);
+            color: white;
+            font-weight: 600;
+            margin-left: -50px;
+            transition: all 0.3s ease;
+        }
+
+        .newsletter-btn:hover {
+            background: #e11576;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Enhanced CTA */
+        .cta-section {
+            background: var(--gradient-accent);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.1;
+        }
+
+        .cta-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            color: white;
+        }
+
+        .cta-btn {
+            background: white;
+            color: var(--accent);
+            border: none;
+            border-radius: 50px;
+            padding: 15px 40px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .cta-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Enhanced Footer */
+        .footer {
+            background: #1a1a2e;
+            color: white;
+        }
+
+        .footer-logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            display: inline-block;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .footer-description {
+            color: #a0a0a0;
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-heading {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .footer-heading::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: var(--accent);
+            border-radius: 3px;
+        }
+
+        .footer-links {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-links a {
+            color: #a0a0a0;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .footer-links a:hover {
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .footer-links a::before {
+            content: 'GǦ';
+            margin-right: 8px;
+            color: var(--accent);
+            transition: all 0.3s ease;
+        }
+
+        .footer-links a:hover::before {
+            transform: translateX(3px);
+        }
+
+        .footer-contact li {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            color: #a0a0a0;
+        }
+
+        .footer-contact i {
+            margin-right: 10px;
+            color: var(--accent);
+            margin-top: 3px;
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 15px;
+            margin-top: 1.5rem;
+        }
+
+        .footer-social a {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #2d2d44;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .footer-social a:hover {
+            background: var(--accent);
+            transform: translateY(-3px);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #2d2d44;
+            padding-top: 1.5rem;
+            margin-top: 3rem;
+            color: #a0a0a0;
+            font-size: 0.9rem;
+        }
+
+        /* Back to Top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .back-to-top:hover {
+            background: var(--gradient-accent);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .statistic-counter {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top">
+            <div class="container">
+                <a class="navbar-brand" href="#home">FS LMS</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#home">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#about">About</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#courses">Courses</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#instructors">Instructors</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#blog">Blog</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#faq">FAQ</a>
+                        </li>
+                    </ul>
+                    <div class="d-flex align-items-center">
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'student_tool:dashboard' %}" class="btn btn-outline-primary me-2">Dashboard</a>
+                            <a href="{% url 'accounts:logout' %}" class="btn btn-primary">Logout</a>
+                        {% else %}
+                            <a href="{% url 'accounts:login' %}" class="btn btn-outline-primary me-2">Login</a>
+                            <a href="{% url 'roleselection:roleselection' %}" class="btn btn-primary">Sign Up</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Carousel Section -->
+    <section id="home" class="hero-carousel">
+        <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-indicators">
+                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
+                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
+                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>
+            </div>
+
+            <div class="carousel-inner">
+                <div class="carousel-item active" style="background-image: url('{% static 'images/hero-bg1.jpg' %}');">
+                    <div class="carousel-caption d-flex h-100 align-items-center justify-content-center">
+                        <div class="text-center text-white">
+                            <h1 class="hero-title">Learn from Industry Experts</h1>
+                            <p class="hero-subtitle">Master new skills with live sessions and interactive learning experiences</p>
+                            <a href="#courses" class="btn btn-warning hero-btn">Start Learning Today</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="carousel-item" style="background-image: url('{% static 'images/hero-bg2.jpg' %}');">
+                    <div class="carousel-caption d-flex h-100 align-items-center justify-content-center">
+                        <div class="text-center text-white">
+                            <h1 class="hero-title">Advance Your Career</h1>
+                            <p class="hero-subtitle">Get certified and boost your professional growth with industry-recognized credentials</p>
+                            <a href="#courses" class="btn btn-warning hero-btn">Explore Courses</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="carousel-item" style="background-image: url('{% static 'images/hero-bg3.jpg' %}');">
+                    <div class="carousel-caption d-flex h-100 align-items-center justify-content-center">
+                        <div class="text-center text-white">
+                            <h1 class="hero-title">Join Our Community</h1>
+                            <p class="hero-subtitle">Connect with learners and instructors worldwide in our vibrant learning community</p>
+                            <a href="{% url 'roleselection:roleselection' %}" class="btn btn-warning hero-btn">Join Now</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+            </button>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-5 mb-lg-0">
+                    <div class="section-header mb-5">
+                        <span class="section-subtitle">About Us</span>
+                        <h2 class="section-title">Welcome to FS LMS</h2>
+                    </div>
+                    <p class="lead mb-4">
+                        {{ about_intro|default:"FS LMS is a premier online learning platform dedicated to providing high-quality education through interactive live sessions and comprehensive course materials." }}
+                    </p>
+                    <p class="mb-4">
+                        We believe in making quality education accessible to everyone. Our platform brings together
+                        industry experts and passionate learners to create a dynamic learning environment that
+                        fosters growth and skill development.
+                    </p>
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><i class="bi bi-check-circle text-primary me-2"></i>Live Interactive Sessions</li>
+                                <li class="mb-2"><i class="bi bi-check-circle text-primary me-2"></i>Expert Instructors</li>
+                                <li class="mb-2"><i class="bi bi-check-circle text-primary me-2"></i>Flexible Learning</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li class="mb-2"><i class="bi bi-check-circle text-primary me-2"></i>Career Support</li>
+                                <li class="mb-2"><i class="bi bi-check-circle text-primary me-2"></i>Community Access</li>
+                                <li class="mb-2"><i class="bi bi-check-circle text-primary me-2"></i>Lifetime Updates</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <a href="#courses" class="btn btn-primary btn-lg px-4 py-2">Explore Our Courses</a>
+                </div>
+                <div class="col-lg-6 text-center">
+                    <div class="position-relative">
+                        <img src="{% static 'images/about-us.jpg' %}" alt="About FS LMS" class="img-fluid rounded-3 shadow-lg">
+                        <div class="position-absolute bottom-0 start-0 bg-primary text-white p-3 rounded m-3">
+                            <h4 class="mb-0">10+ Years</h4>
+                            <p class="mb-0">of Excellence</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Popular Courses Section -->
+    <section id="courses" class="py-5 bg-light">
+        <div class="container">
+            <div class="section-header text-center mb-5">
+                <span class="section-subtitle">Popular Courses</span>
+                <h2 class="section-title">Most Enrolled Courses</h2>
+                <p class="section-description">Learn from our most popular courses taught by industry experts</p>
+            </div>
+
+            <div class="row g-4">
+                {% for course in courses|slice:":3" %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="course-card">
+                        <div class="course-image">
+                            {% if course.thumbnail %}
+                                <img src="{{ course.thumbnail.url }}" alt="{{ course.title }}">
+                            {% else %}
+                                <img src="{% static 'images/default_course.jpg' %}" alt="{{ course.title }}">
+                            {% endif %}
+                            {% if course.is_featured %}
+                                <span class="course-badge badge bg-warning">Featured</span>
+                            {% endif %}
+                        </div>
+                        <div class="course-body">
+                            <h5 class="course-title">{{ course.title }}</h5>
+                            <p class="course-description">{{ course.short_description|truncatewords:20 }}</p>
+
+                            <div class="course-meta">
+                                <div class="course-instructor">
+                                    {% if course.instructor.avatar %}
+                                        <img src="{{ course.instructor.avatar.url }}" alt="{{ course.instructor.get_full_name }}" class="instructor-avatar">
+                                    {% elif course.instructor.profile and course.instructor.profile.profile_picture %}
+                                        <img src="{{ course.instructor.profile.profile_picture.url }}" alt="{{ course.instructor.get_full_name }}" class="instructor-avatar">
+                                    {% else %}
+                                        <img src="{% static 'images/default instructor image.jpg' %}" alt="{{ course.instructor.get_full_name }}" class="instructor-avatar">
+                                    {% endif %}
+                                    <span>{{ course.instructor.get_full_name|default:course.instructor.username }}</span>
+                                </div>
+                                <div class="course-price">&#2547;{{ course.price|default:"0" }}</div>
+                            </div>
+
+                            <div class="course-footer">
+                                <div class="course-rating">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= course.rating|default:0 %}
+                                            <i class="bi bi-star-fill"></i>
+                                        {% else %}
+                                            <i class="bi bi-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <small class="text-muted ms-1">({{ course.review_count|default:0 }})</small>
+                                </div>
+                                <a href="{% url 'courses:course_detail' course.id %}" class="btn btn-primary course-btn">View Course</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center">
+                    <p class="text-muted">No courses available at the moment.</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="text-center mt-5">
+                <a href="{% url 'courses:course_list' %}" class="btn btn-outline-primary btn-lg px-4 py-2">View All Courses</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Choose Us Section -->
+    <section class="py-5">
+        <div class="container">
+            <div class="section-header text-center mb-5">
+                <span class="section-subtitle">Why Choose Us</span>
+                <h2 class="section-title">Learn Better with FS LMS</h2>
+                <p class="section-description">Discover what makes our learning platform unique and effective</p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-camera-video"></i>
+                        </div>
+                        <h4 class="feature-title">Live Sessions</h4>
+                        <p class="feature-description">Interactive live classes with industry experts and real-time Q&A sessions for immediate feedback.</p>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-people"></i>
+                        </div>
+                        <h4 class="feature-title">Expert Instructors</h4>
+                        <p class="feature-description">Learn from professionals with years of industry experience and proven teaching expertise.</p>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-laptop"></i>
+                        </div>
+                        <h4 class="feature-title">Flexible Learning</h4>
+                        <p class="feature-description">Learn at your own pace with lifetime access to course materials and regular content updates.</p>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-briefcase"></i>
+                        </div>
+                        <h4 class="feature-title">Career Support</h4>
+                        <p class="feature-description">Get career guidance, resume reviews, and job placement assistance to advance your career.</p>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-chat-dots"></i>
+                        </div>
+                        <h4 class="feature-title">Community</h4>
+                        <p class="feature-description">Join a vibrant community of learners and network with like-minded individuals worldwide.</p>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="bi bi-phone"></i>
+                        </div>
+                        <h4 class="feature-title">Mobile Access</h4>
+                        <p class="feature-description">Learn on the go with our mobile-friendly platform and dedicated learning application.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistics Section -->
+    <section class="py-5 statistics-section">
+        <div class="container">
+            <div class="section-header text-center mb-5">
+                <h2 class="section-title text-white">Our Achievements</h2>
+                <p class="section-description text-white-50">Numbers that speak for our success and community growth</p>
+            </div>
+
+            <div class="row text-center">
+                <div class="col-md-3 col-6 mb-4">
+                    <div class="statistic-item">
+                        <i class="bi bi-people statistic-icon"></i>
+                        <span class="statistic-counter" data-count="{{ stats.students|default:'10000' }}">0</span>
+                        <p class="statistic-label">Students Enrolled</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 mb-4">
+                    <div class="statistic-item">
+                        <i class="bi bi-book statistic-icon"></i>
+                        <span class="statistic-counter" data-count="{{ stats.courses|default:'500' }}">0</span>
+                        <p class="statistic-label">Courses Available</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 mb-4">
+                    <div class="statistic-item">
+                        <i class="bi bi-person-badge statistic-icon"></i>
+                        <span class="statistic-counter" data-count="{{ stats.instructors|default:'200' }}">0</span>
+                        <p class="statistic-label">Expert Instructors</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6 mb-4">
+                    <div class="statistic-item">
+                        <i class="bi bi-globe statistic-icon"></i>
+                        <span class="statistic-counter" data-count="{{ stats.countries|default:'50' }}">0</span>
+                        <p class="statistic-label">Countries Reached</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Meet Our Instructors Section -->
+    <section id="instructors" class="py-5 bg-light">
+        <div class="container">
+            <div class="section-header text-center mb-5">
+                <span class="section-subtitle">Our Team</span>
+                <h2 class="section-title">Meet Our Instructors</h2>
+                <p class="section-description">Learn from industry professionals with real-world experience</p>
+            </div>
+
+            <div class="row g-4">
+                {% for instructor in instructors|slice:":4" %}
+                <div class="col-md-6 col-lg-3">
+                    <div class="instructor-card h-100">
+                        <div class="instructor-image d-flex justify-content-center mb-3 mt-2">
+                            <img src="{% if instructor.avatar %}{{ instructor.avatar.url }}{% elif instructor.profile and instructor.profile.profile_picture %}{{ instructor.profile.profile_picture.url }}{% else %}{% static 'images/default instructor image.jpg' %}{% endif %}"
+                                 alt="{{ instructor.get_full_name|default:instructor.username }}"
+                                 style="width:220px; height:220px; object-fit:cover; padding:10px; background:#f8f9fa; border:1px solid #e5e7eb;">
+                        </div>
+                        <div class="instructor-body">
+                            <h5 class="instructor-name">{{ instructor.get_full_name|default:instructor.username }}</h5>
+                            {% with ip=instructor.instructorprofile %}
+                            <p class="instructor-title">
+                                {% if ip and ip.professional_title %}{{ ip.professional_title }}{% elif instructor.professional_title %}{{ instructor.professional_title }}{% else %}Industry Expert{% endif %}
+                            </p>
+                            <p class="instructor-bio">{{ instructor.bio|truncatewords:20 }}</p>
+
+                            <div class="instructor-social">
+                                {% if ip and ip.linkedin %}
+                                <a href="{{ ip.linkedin }}" class="social-icon">
+                                    <i class="bi bi-linkedin"></i>
+                                </a>
+                                {% endif %}
+                                {% if ip and ip.twitter %}
+                                <a href="{{ ip.twitter }}" class="social-icon">
+                                    <i class="bi bi-twitter"></i>
+                                </a>
+                                {% endif %}
+                                {% if ip and ip.website %}
+                                <a href="{{ ip.website }}" class="social-icon">
+                                    <i class="bi bi-globe"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                            {% endwith %}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center">
+                    <p class="text-muted">No instructors available at the moment.</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="text-center mt-5">
+                <a href="{% url 'instructor_tool:list' %}" class="btn btn-primary btn-lg px-4 py-2">Meet All Instructors</a>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Latest Articles Section -->
+    <section id="blog" class="py-5">
+        <div class="container">
+            <div class="section-header text-center mb-5">
+                <span class="section-subtitle">Blog & News</span>
+                <h2 class="section-title">Latest Articles</h2>
+                <p class="section-description">Stay updated with the latest trends, tips, and insights</p>
+            </div>
+
+            <div class="row g-4">
+                {% for post in blogs %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="blog-card">
+                        <div class="blog-image">
+                            {% if post.cover_image %}
+                                <img src="{{ post.cover_image.url }}" alt="{{ post.title }}">
+                            {% elif post.image %}
+                                <img src="{{ post.image.url }}" alt="{{ post.title }}">
+                            {% else %}
+                                <img src="{% static 'images/default-blog.jpg' %}" alt="{{ post.title }}">
+                            {% endif %}
+                        </div>
+                        <div class="blog-body">
+                            <div class="blog-meta">
+                                <span><i class="bi bi-calendar me-1"></i> {{ post.created_at|date:"F d, Y" }}</span>
+                                <span><i class="bi bi-chat me-1"></i> {{ post.comment_count|default:"0" }} comments</span>
+                            </div>
+                            <h5 class="blog-title">{{ post.title }}</h5>
+                            <p class="blog-excerpt">{{ post.excerpt|default:post.content|truncatewords:20 }}</p>
+                            <a href="{% url 'blog:detail' post.slug %}" class="blog-link">
+                                Read More <i class="bi bi-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center">
+                    <p class="text-muted">No blog posts available.</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="text-center mt-5">
+                <a href="{% url 'blog:list' %}" class="btn btn-outline-primary btn-lg px-4 py-2">View All Articles</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="py-5 bg-light">
+        <div class="container">
+            <div class="section-header text-center mb-5">
+                <span class="section-subtitle">FAQ</span>
+                <h2 class="section-title">Frequently Asked Questions</h2>
+                <p class="section-description">Find answers to common questions about our platform</p>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="accordion faq-accordion" id="faqAccordion">
+                        {% for faq in faqs %}
+                        <div class="accordion-item">
+                            <h3 class="accordion-header">
+                                <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#faq{{ forloop.counter }}">
+                                    {{ faq.question }}
+                                </button>
+                            </h3>
+                            <div id="faq{{ forloop.counter }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body">
+                                    {{ faq.answer }}
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center">
+                            <p class="text-muted">No FAQs available at the moment.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Newsletter Section -->
+    <section class="py-5 newsletter-section">
+        <div class="container">
+            <div class="newsletter-content">
+                <h2 class="section-title text-white mb-3">Stay Updated</h2>
+                <p class="section-description text-white-50 mb-4">Subscribe to our newsletter for the latest course updates and learning tips</p>
+
+                <form id="newsletterForm" class="newsletter-form">
+                    {% csrf_token %}
+                    <div class="input-group">
+                        <input type="email" class="form-control newsletter-input" placeholder="Enter your email" required>
+                        <button type="submit" class="btn newsletter-btn">Subscribe</button>
+                    </div>
+                </form>
+                <div id="newsletterMessage" class="mt-3"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-5 cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2 class="section-title text-white mb-3">Ready to Start Your Learning Journey?</h2>
+                <p class="section-description text-white-50 mb-4">Join thousands of students already transforming their careers with FS LMS.</p>
+                {% if not user.is_authenticated %}
+                <a href="{% url 'roleselection:roleselection' %}" class="btn cta-btn">
+                    <i class="bi bi-person-plus me-2"></i>Create Free Account
+                </a>
+                {% else %}
+                <a href="{% url 'student_tool:dashboard' %}" class="btn cta-btn">
+                    <i class="bi bi-speedometer2 me-2"></i>Go to Dashboard
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer py-5">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-lg-3 col-md-6">
+                    <h3 class="footer-logo">FS LMS</h3>
+                    <p class="footer-description">Empowering learners worldwide with quality education and industry-relevant skills.</p>
+                    <div class="footer-social">
+                        <a href="#"><i class="bi bi-facebook"></i></a>
+                        <a href="#"><i class="bi bi-twitter"></i></a>
+                        <a href="#"><i class="bi bi-linkedin"></i></a>
+                        <a href="#"><i class="bi bi-youtube"></i></a>
+                        <a href="#"><i class="bi bi-instagram"></i></a>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <h5 class="footer-heading">Quick Links</h5>
+                    <ul class="footer-links">
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#about">About Us</a></li>
+                        <li><a href="#courses">Courses</a></li>
+                        <li><a href="#instructors">Instructors</a></li>
+                        <li><a href="#blog">Blog</a></li>
+                        <li><a href="#faq">FAQ</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <h5 class="footer-heading">Course Categories</h5>
+                    <ul class="footer-links">
+                        {% for category in course_categories|slice:":5" %}
+                        <li><a href="{% url 'courses:course_list' %}?category={{ category.id }}">{{ category.name }}</a></li>
+                        {% empty %}
+                        <li><a href="#">Web Development</a></li>
+                        <li><a href="#">Data Science</a></li>
+                        <li><a href="#">Digital Marketing</a></li>
+                        <li><a href="#">Business</a></li>
+                        <li><a href="#">Design</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <h5 class="footer-heading">Contact Us</h5>
+                    <ul class="footer-contact">
+                        <li>
+                            <i class="bi bi-geo-alt"></i>
+                            <span>123 Learning Street, Education City</span>
+                        </li>
+                        <li>
+                            <i class="bi bi-envelope"></i>
+                            <span>info@fslms.com</span>
+                        </li>
+                        <li>
+                            <i class="bi bi-phone"></i>
+                            <span>+1 (555) 123-4567</span>
+                        </li>
+                        <li>
+                            <i class="bi bi-clock"></i>
+                            <span>Mon-Fri: 9:00 AM - 6:00 PM</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom text-center">
+                <p class="mb-0">&copy; {{ now.year|default:"2024" }} Future Skill. All rights reserved.
+                  | <a href="{% url 'home:privacy' %}" class="text-muted">Privacy Policy</a>
+                  | <a href="{% url 'home:terms' %}" class="text-muted">Terms of Service</a>
+                  | <a href="{% url 'home:cookies' %}" class="text-muted">Cookie Policy</a>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop">
+        <i class="bi bi-arrow-up"></i>
+    </button>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Back to top button
+        const backToTopButton = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTopButton.classList.add('show');
+            } else {
+                backToTopButton.classList.remove('show');
+            }
+        });
+
+        backToTopButton.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // Animated counters
+        function animateCounters() {
+            const counters = document.querySelectorAll('.statistic-counter');
+            const speed = 200;
+
+            counters.forEach(counter => {
+                const target = parseInt(counter.getAttribute('data-count'));
+                const count = parseInt(counter.innerText);
+                const increment = target / speed;
+
+                if (count < target) {
+                    counter.innerText = Math.ceil(count + increment);
+                    setTimeout(animateCounters, 1);
+                } else {
+                    counter.innerText = target;
+                }
+            });
+        }
+
+        // Intersection Observer for counter animation
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateCounters();
+                    observer.unobserve(entry.target);
+                }
+            });
+        });
+
+        const statsSection = document.querySelector('.statistics-section');
+        if (statsSection) {
+            observer.observe(statsSection);
+        }
+
+        // Newsletter form submission
+        document.getElementById('newsletterForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const messageDiv = document.getElementById('newsletterMessage');
+
+            // Simulate AJAX submission
+            messageDiv.innerHTML = '<div class="alert alert-success bg-success text-white border-0">Thank you for subscribing to our newsletter!</div>';
+            this.reset();
+        });
+
+        // Add animation to elements on scroll
+        const animatedElements = document.querySelectorAll('.course-card, .feature-card, .instructor-card, .blog-card');
+        const elementObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                    elementObserver.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+
+        animatedElements.forEach(element => {
+            element.style.opacity = '0';
+            element.style.transform = 'translateY(20px)';
+            element.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            elementObserver.observe(element);
+        });
+    </script>
+</body>
+</html>
+
+

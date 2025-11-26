@@ -1,0 +1,666 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Courses{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --primary-color: #2c3e50;
+        --secondary-color: #3498db;
+        --success-color: #27ae60;
+        --light-bg: #f8f9fa;
+        --border-color: #e9ecef;
+        --text-muted: #6c757d;
+        --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, var(--primary-color), #1a2530);
+        color: white;
+        padding: 2.5rem 0;
+        border-radius: 0 0 12px 12px;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .filter-section {
+        background: white;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--border-color);
+    }
+
+    .filter-header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid var(--light-bg);
+    }
+
+    .filter-title {
+        font-weight: 600;
+        color: var(--primary-color);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .filter-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .filter-group {
+        margin-bottom: 0;
+    }
+
+    .filter-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .form-control, .form-select {
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 0.75rem;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--secondary-color);
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    }
+
+    .active-filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .filter-badge {
+        background: rgba(52, 152, 219, 0.1);
+        color: var(--secondary-color);
+        padding: 0.5rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .filter-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .btn-primary {
+        background: var(--secondary-color);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+    }
+
+    .btn-primary:hover {
+        background: #2980b9;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-outline {
+        background: white;
+        color: var(--secondary-color);
+        border: 1px solid var(--secondary-color);
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+
+    .btn-outline:hover {
+        background: var(--light-bg);
+        color: var(--secondary-color);
+        transform: translateY(-2px);
+    }
+
+    .btn-success {
+        background: var(--success-color);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+
+    .btn-success:hover {
+        background: #219653;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .courses-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+    }
+
+    .course-card {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        transition: all 0.3s ease;
+        border: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .course-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    .course-image {
+        height: 180px;
+        width: 100%;
+        object-fit: cover;
+        background-color: var(--light-bg);
+    }
+
+    .course-image-placeholder {
+        height: 180px;
+        background: linear-gradient(135deg, var(--light-bg), #e9ecef);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-muted);
+    }
+
+    .course-content {
+        padding: 1.5rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .course-title {
+        font-weight: 600;
+        margin-bottom: 0.75rem;
+        color: var(--primary-color);
+        line-height: 1.4;
+        font-size: 1.1rem;
+    }
+
+    .course-description {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+        line-height: 1.5;
+        flex-grow: 1;
+    }
+
+    .course-meta {
+        margin-bottom: 1.5rem;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+    }
+
+    .meta-badge {
+        background: var(--light-bg);
+        color: var(--primary-color);
+        padding: 0.2rem 0.6rem;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: uppercase;
+    }
+
+    .course-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: auto;
+    }
+
+    .price-container {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .current-price {
+        font-weight: 700;
+        font-size: 1.2rem;
+        color: var(--secondary-color);
+    }
+
+    .original-price {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        text-decoration: line-through;
+    }
+
+    .btn-details {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 0.6rem 1rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        transition: all 0.2s;
+    }
+
+    .btn-details:hover {
+        background: #1a2530;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: var(--text-muted);
+        background: white;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        grid-column: 1 / -1;
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .pagination-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
+    .pagination {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .page-item {
+        margin: 0;
+    }
+
+    .page-link {
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        color: var(--primary-color);
+        font-weight: 500;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .page-link:hover {
+        background: var(--light-bg);
+        border-color: var(--secondary-color);
+        color: var(--secondary-color);
+    }
+
+    .page-item.active .page-link {
+        background: var(--secondary-color);
+        border-color: var(--secondary-color);
+        color: white;
+    }
+
+    .page-item.disabled .page-link {
+        background: var(--light-bg);
+        color: var(--text-muted);
+        pointer-events: none;
+    }
+
+    @media (max-width: 768px) {
+        .filter-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .courses-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .filter-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .page-title {
+            font-size: 2rem;
+        }
+    }
+</style>
+
+<div class="page-header">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <h1 class="page-title"><i class="bi bi-book"></i> Courses</h1>
+                <p class="mb-0">Discover and enroll in our comprehensive course catalog</p>
+            </div>
+            <a href="{% url 'courses:course_create' %}" class="btn-success">
+                <i class="bi bi-plus-circle"></i> Create Course
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <div class="filter-header">
+            <h2 class="filter-title"><i class="bi bi-funnel"></i> Filter Courses</h2>
+        </div>
+
+        <form method="get">
+            <div class="filter-grid">
+                <div class="filter-group">
+                    <label class="filter-label">Search</label>
+                    <input type="text" name="q" value="{{ search_query }}" class="form-control" placeholder="Course title, description...">
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Category</label>
+                    <select name="category" class="form-select">
+                        <option value="">All Categories</option>
+                        {% for cat in categories %}
+                            <option value="{{ cat.id }}" {% if selected_category == cat.id|stringformat:"s" %}selected{% endif %}>
+                                {{ cat.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Instructor</label>
+                    <select name="instructor" class="form-select">
+                        <option value="">All Instructors</option>
+                        {% for inst in instructors %}
+                            <option value="{{ inst.id }}" {% if selected_instructor == inst.id|stringformat:"s" %}selected{% endif %}>
+                                {{ inst.get_full_name|default:inst.username }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Max Price (&#2547;)</label>
+                    <input type="number" name="price" value="{{ max_price }}" class="form-control" placeholder="e.g. 5000">
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Sort By</label>
+                    <select name="sort" class="form-select">
+                        <option value="">Relevance</option>
+                        <option value="newest" {% if sort_by == "newest" %}selected{% endif %}>Newest First</option>
+                        <option value="price_low" {% if sort_by == "price_low" %}selected{% endif %}>Price: Low to High</option>
+                        <option value="price_high" {% if sort_by == "price_high" %}selected{% endif %}>Price: High to Low</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Active Filters -->
+            {% if search_query or selected_category or selected_instructor or max_price or sort_by %}
+            <div class="active-filters">
+                {% if search_query %}
+                    <span class="filter-badge">
+                        <i class="bi bi-search"></i> Search: "{{ search_query }}"
+                    </span>
+                {% endif %}
+                {% if selected_category %}
+                    <span class="filter-badge">
+                        <i class="bi bi-tag"></i> Category: {{ selected_category }}
+                    </span>
+                {% endif %}
+                {% if selected_instructor %}
+                    <span class="filter-badge">
+                        <i class="bi bi-person"></i> Instructor: {{ selected_instructor }}
+                    </span>
+                {% endif %}
+                {% if max_price %}
+                    <span class="filter-badge">
+                        <i class="bi bi-currency-dollar"></i> Max Price: &#2547;{{ max_price }}
+                    </span>
+                {% endif %}
+                {% if sort_by %}
+                    <span class="filter-badge">
+                        <i class="bi bi-sort-down"></i> Sorted: {{ sort_by }}
+                    </span>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Filter Actions -->
+            <div class="filter-actions">
+                <div>
+                    <button type="submit" class="btn-primary">
+                        <i class="bi bi-search"></i> Apply Filters
+                    </button>
+                    <a href="{% url 'courses:course_list' %}" class="btn-outline">
+                        <i class="bi bi-arrow-clockwise"></i> Reset Filters
+                    </a>
+                </div>
+
+                {% if page_obj %}
+                    <div class="text-muted small">
+                        Showing {{ page_obj.start_index }} - {{ page_obj.end_index }} of {{ page_obj.paginator.count }} courses
+                    </div>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Courses Grid -->
+    {% if page_obj %}
+        <div class="courses-grid">
+            {% for course in page_obj %}
+                <div class="course-card">
+                    {% if course.thumbnail %}
+                        <img src="{{ course.thumbnail.url }}" class="course-image" alt="{{ course.title }}">
+                    {% else %}
+                        <div class="course-image-placeholder">
+                            <i class="bi bi-image" style="font-size: 3rem;"></i>
+                        </div>
+                    {% endif %}
+
+                    <div class="course-content">
+                        <h3 class="course-title">{{ course.title }}</h3>
+
+                        <p class="course-description">
+                            {{ course.short_description|default:course.description|truncatewords:25|default:"No description available." }}
+                        </p>
+
+                        <div class="course-meta">
+                            <div class="meta-item">
+                                <i class="bi bi-person"></i>
+                                <span>{{ course.instructor.get_full_name|default:course.instructor.username }}</span>
+                            </div>
+
+                            <div class="meta-item">
+                                <i class="bi bi-translate"></i>
+                                <span>{{ course.language|default:"N/A" }}</span>
+                                <span class="meta-badge">{{ course.level }}</span>
+                            </div>
+
+                            <div class="meta-item">
+                                <i class="bi bi-tag"></i>
+                                <span>{% if course.category %}{{ course.category.name }}{% else %}Uncategorized{% endif %}</span>
+                            </div>
+                        </div>
+
+                        <div class="course-footer">
+                            <div class="price-container">
+                                {% if course.discount_price %}
+                                    <span class="current-price">&#2547;{{ course.discount_price }}</span>
+                                    <span class="original-price">&#2547;{{ course.price }}</span>
+                                {% else %}
+                                    <span class="current-price">&#2547;{{ course.price }}</span>
+                                {% endif %}
+                            </div>
+
+                            <a href="{% url 'courses:course_detail' course.id %}" class="btn-details">
+                                <i class="bi bi-eye"></i> Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="bi bi-search"></i>
+            </div>
+            <h3>No Courses Found</h3>
+            <p class="mb-3">We couldn't find any courses matching your criteria.</p>
+            <a href="{% url 'courses:course_list' %}" class="btn-outline">
+                <i class="bi bi-arrow-clockwise"></i> Reset Filters
+            </a>
+        </div>
+    {% endif %}
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+        <div class="pagination-container">
+            <nav aria-label="Course pagination">
+                <ul class="pagination">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?{% if search_query %}q={{ search_query }}&{% endif %}
+                                {% if selected_category %}category={{ selected_category }}&{% endif %}
+                                {% if selected_instructor %}instructor={{ selected_instructor }}&{% endif %}
+                                {% if max_price %}price={{ max_price }}&{% endif %}
+                                {% if sort_by %}sort={{ sort_by }}&{% endif %}
+                                page={{ page_obj.previous_page_number }}">
+                                <i class="bi bi-chevron-left"></i> Previous
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="bi bi-chevron-left"></i> Previous</span>
+                        </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?{% if search_query %}q={{ search_query }}&{% endif %}
+                                    {% if selected_category %}category={{ selected_category }}&{% endif %}
+                                    {% if selected_instructor %}instructor={{ selected_instructor }}&{% endif %}
+                                    {% if max_price %}price={{ max_price }}&{% endif %}
+                                    {% if sort_by %}sort={{ sort_by }}&{% endif %}
+                                    page={{ num }}">{{ num }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?{% if search_query %}q={{ search_query }}&{% endif %}
+                                {% if selected_category %}category={{ selected_category }}&{% endif %}
+                                {% if selected_instructor %}instructor={{ selected_instructor }}&{% endif %}
+                                {% if max_price %}price={{ max_price }}&{% endif %}
+                                {% if sort_by %}sort={{ sort_by }}&{% endif %}
+                                page={{ page_obj.next_page_number }}">
+                                Next <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">Next <i class="bi bi-chevron-right"></i></span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add smooth animations to course cards
+        const courseCards = document.querySelectorAll('.course-card');
+        courseCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px)';
+            });
+
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Enhance form interactions
+        const formInputs = document.querySelectorAll('.form-control, .form-select');
+        formInputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.classList.add('focused');
+            });
+
+            input.addEventListener('blur', function() {
+                this.parentElement.classList.remove('focused');
+            });
+        });
+    });
+</script>
+{% endblock %}
+

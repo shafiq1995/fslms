@@ -1,0 +1,47 @@
+/* static/admin_tools/css/admin_dashboard.css */
+
+.admin-dashboard { padding-bottom: 48px; }
+
+.stat-card {
+  border-left: 6px solid #0090c9;
+  transition: transform 0.15s ease;
+}
+.stat-card:hover {
+  transform: translateY(-3px);
+}
+.stat-card .card-title {
+  font-size: 0.9rem;
+  color: #555;
+}
+.stat-value {
+  font-weight: 700;
+  color: #222;
+  margin-top: 8px;
+}
+
+.admin-topbar {
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.card .card-header {
+  background: linear-gradient(90deg, rgba(0,144,201,0.06), rgba(243,156,18,0.03));
+  font-weight: 600;
+}
+
+.list-group-item img {
+  border-radius: 6px;
+}
+
+.badge.bg-success {
+  background-color: #198754 !important;
+}
+.badge.bg-warning {
+  background-color: #f39c12 !important;
+  color: #212529;
+}
+
+/* small screens adjustments */
+@media (max-width: 767px) {
+  .stat-value { font-size: 1.4rem; }
+  .card .card-body { padding: 1rem; }
+}

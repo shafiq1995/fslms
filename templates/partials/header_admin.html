@@ -1,0 +1,38 @@
+{% load static %}
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center fw-bold" href="{% url 'admin_tools:dashboard' %}">
+      <img src="{% static 'images/logo.png' %}" width="32" height="32" class="me-2" alt="Future Skill">
+      <span class="text-primary">Future Skill</span>
+    </a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminTopNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="adminTopNav">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item"><a class="nav-link" href="{% url 'admin_tools:dashboard' %}"><i class="bi bi-speedometer"></i> Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'admin_tools:user_management_list' %}"><i class="bi bi-people"></i> Users</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'admin_tools:instructor_applications' %}"><i class="bi bi-person-badge"></i> Instructor Apps</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'admin_tools:admin_course_list' %}"><i class="bi bi-journal-text"></i> Courses</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'payments:admin_payments' %}"><i class="bi bi-cash-stack"></i> Payments</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'admin_tools:certificate_list' %}"><i class="bi bi-award"></i> Certificates</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'admin_tools:faq_manage' %}"><i class="bi bi-question-circle"></i> FAQs</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'admin_tools:admin_logs' %}"><i class="bi bi-clipboard-data"></i> Activity Logs</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'admin_tools:blog_admin_list' %}"><i class="bi bi-journal"></i> Blogs</a></li>
+      </ul>
+
+      <ul class="navbar-nav ms-auto align-items-center">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle fw-semibold" href="#" data-bs-toggle="dropdown">{{ request.user.get_full_name|default:request.user.username }}</a>
+          <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+            <li><a class="dropdown-item" href="{% url 'accounts:profile' %}"><i class="bi bi-person"></i> Profile</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="{% url 'admin_tools:adminlogout' %}"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>

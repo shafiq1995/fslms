@@ -1,0 +1,488 @@
+{% extends "base.html" %}
+{% load static %}
+{% load student_tags %}
+
+{% block title %}{{ course.title }}{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --primary-color: #2c3e50;
+        --secondary-color: #3498db;
+        --success-color: #27ae60;
+        --light-bg: #f8f9fa;
+        --border-color: #e9ecef;
+        --text-muted: #6c757d;
+    }
+
+    .course-hero {
+        background: linear-gradient(135deg, var(--primary-color), #1a2530);
+        color: white;
+        padding: 2.5rem 0;
+        border-radius: 0 0 12px 12px;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .course-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .course-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .meta-badge {
+        background: rgba(255, 255, 255, 0.15);
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .instructor-card {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: white;
+        padding: 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        margin-bottom: 2rem;
+        border-left: 4px solid var(--secondary-color);
+    }
+
+    .instructor-avatar {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid var(--border-color);
+    }
+
+    .instructor-info h5 {
+        margin-bottom: 0.3rem;
+        font-weight: 600;
+    }
+
+    .instructor-info p {
+        margin-bottom: 0;
+        color: var(--text-muted);
+    }
+
+    .course-description {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+
+    .progress-container {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        margin-bottom: 2rem;
+    }
+
+    .progress-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.8rem;
+    }
+
+    .progress-bar {
+        height: 12px;
+        background-color: #e9ecef;
+        border-radius: 6px;
+        overflow: hidden;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--success-color), #2ecc71);
+        border-radius: 6px;
+        transition: width 1s ease-in-out;
+    }
+
+    .section-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        margin-bottom: 2rem;
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+    }
+
+    .section-header {
+        background: var(--light-bg);
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .section-title {
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .lesson-count {
+        background: var(--primary-color);
+        color: white;
+        padding: 0.2rem 0.6rem;
+        border-radius: 12px;
+        font-size: 0.8rem;
+    }
+
+    .lesson-item {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+        transition: background-color 0.2s;
+    }
+
+    .lesson-item:last-child {
+        border-bottom: none;
+    }
+
+    .lesson-item:hover {
+        background-color: #fdfdfd;
+    }
+
+    .lesson-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.8rem;
+    }
+
+    .lesson-title {
+        font-weight: 600;
+        margin-bottom: 0.3rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .lesson-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .meta-tag {
+        background: var(--light-bg);
+        padding: 0.2rem 0.6rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+
+    .lesson-content {
+        color: var(--text-muted);
+        margin-bottom: 1rem;
+        line-height: 1.5;
+    }
+
+    .lesson-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .btn-action {
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .btn-primary {
+        background: var(--secondary-color);
+        color: white;
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background: #2980b9;
+        color: white;
+    }
+
+    .btn-outline {
+        background: white;
+        color: var(--secondary-color);
+        border: 1px solid var(--secondary-color);
+    }
+
+    .btn-outline:hover {
+        background: var(--light-bg);
+        color: var(--secondary-color);
+    }
+
+    .btn-success {
+        background: var(--success-color);
+        color: white;
+        border: none;
+    }
+
+    .btn-success:hover {
+        background: #219653;
+        color: white;
+    }
+
+    .access-alert {
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        text-align: center;
+        margin-bottom: 2rem;
+        border-left: 4px solid #f39c12;
+    }
+
+    .access-alert h4 {
+        color: #e67e22;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-muted);
+    }
+
+    .status-badge {
+        padding: 0.3rem 0.7rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .badge-completed {
+        background: rgba(39, 174, 96, 0.1);
+        color: var(--success-color);
+    }
+
+    .badge-pending {
+        background: rgba(108, 117, 125, 0.1);
+        color: var(--text-muted);
+    }
+
+    .badge-preview {
+        background: rgba(52, 152, 219, 0.1);
+        color: var(--secondary-color);
+    }
+
+    @media (max-width: 768px) {
+        .course-title {
+            font-size: 2rem;
+        }
+
+        .lesson-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .instructor-card {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+</style>
+
+<div class="course-hero">
+    <div class="container">
+        <h1 class="course-title">{{ course.title }}</h1>
+        <p class="mb-0">{{ course.short_description|default:course.description|default:"No description available." }}</p>
+
+        <div class="course-meta">
+            <div class="meta-badge">
+                <i class="bi bi-translate"></i> {{ course.language|default:"N/A" }}
+            </div>
+            <div class="meta-badge">
+                <i class="bi bi-bar-chart"></i> {{ course.level|title }}
+            </div>
+            {% if is_enrolled %}
+            <div class="meta-badge">
+                <i class="bi bi-check-circle"></i> Enrolled
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Instructor Information -->
+    <div class="instructor-card">
+        {% if course.instructor.avatar %}
+            <img src="{{ course.instructor.avatar.url }}" class="instructor-avatar" alt="Instructor">
+        {% else %}
+            <div class="instructor-avatar bg-light d-flex align-items-center justify-content-center">
+                <i class="bi bi-person" style="font-size: 1.5rem; color: #6c757d;"></i>
+            </div>
+        {% endif %}
+        <div class="instructor-info">
+            <h5>Course Instructor</h5>
+            <p class="mb-1">{{ course.instructor.get_full_name|default:course.instructor.username }}</p>
+            <p class="mb-0 text-muted">Expert in this field</p>
+        </div>
+    </div>
+
+    {% if not is_enrolled %}
+        <!-- Access Restricted Section -->
+        <div class="access-alert">
+            <h4><i class="bi bi-lock"></i> Access Restricted</h4>
+            <p class="mb-3">You must enroll in this course to access its lessons, attachments, and class links.</p>
+            <form method="get" action="{% url 'payments:make_payment' course.id %}">
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-cash-stack"></i> Pay & Enroll Now
+                </button>
+            </form>
+        </div>
+    {% else %}
+        <!-- Progress Section -->
+        <div class="progress-container">
+            <div class="progress-header">
+                <span class="fw-semibold">Your Course Progress</span>
+                <span class="fw-bold">{{ progress|floatformat:0 }}% Complete</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: {{ progress|floatformat:0 }}%"></div>
+            </div>
+        </div>
+
+        <!-- Course Content Sections -->
+        {% if sections %}
+            {% for section in sections %}
+                <div class="section-card">
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <i class="bi bi-list-task"></i> {{ section.title }}
+                        </h3>
+                        <span class="lesson-count">{{ section.lessons.count }} Lesson{{ section.lessons.count|pluralize }}</span>
+                    </div>
+
+                    <div class="section-lessons">
+                        {% for lesson in section.lessons.all %}
+                            <div class="lesson-item">
+                                <div class="lesson-header">
+                                    <div class="flex-grow-1">
+                                        <h4 class="lesson-title">
+                                            <i class="bi bi-journal-text"></i> {{ lesson.title }}
+                                        </h4>
+                                        <div class="lesson-meta">
+                                            <span class="meta-tag text-uppercase">{{ lesson.lesson_type }}</span>
+                                            {% if lesson.scheduled_at %}
+                                                <span class="meta-tag">
+                                                    <i class="bi bi-calendar"></i> {{ lesson.scheduled_at|date:"M j, H:i" }}
+                                                </span>
+                                            {% endif %}
+                                            {% if lesson.duration_minutes %}
+                                                <span class="meta-tag">
+                                                    <i class="bi bi-clock"></i> {{ lesson.duration_minutes }} mins
+                                                </span>
+                                            {% endif %}
+                                            {% if lesson.is_preview %}
+                                                <span class="meta-tag badge-preview">Preview</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div>
+                                        {% if lesson_progress|get_item:lesson.id %}
+                                            <span class="status-badge badge-completed">
+                                                <i class="bi bi-check2"></i> Completed
+                                            </span>
+                                        {% else %}
+                                            <span class="status-badge badge-pending">Pending</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                {% if lesson.content %}
+                                    <div class="lesson-content">
+                                        {{ lesson.content|truncatewords:30 }}
+                                    </div>
+                                {% endif %}
+
+                                <div class="lesson-actions">
+                                    {% if lesson.join_link %}
+                                        <a href="{{ lesson.join_link }}" target="_blank" class="btn-action btn-primary">
+                                            <i class="bi bi-camera-video"></i> Join Class
+                                        </a>
+                                    {% endif %}
+
+                                    {% if lesson.attachment %}
+                                        <a href="{{ lesson.attachment.url }}" class="btn-action btn-outline" download>
+                                            <i class="bi bi-paperclip"></i> Download Resource
+                                        </a>
+                                    {% endif %}
+
+                                    {% if lesson.resource_links %}
+                                        {% for link in lesson.resource_links.splitlines %}
+                                            {% if link %}
+                                                <a href="{{ link }}" target="_blank" class="btn-action btn-outline">
+                                                    <i class="bi bi-link-45deg"></i> Resource
+                                                </a>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <i class="bi bi-info-circle" style="font-size: 3rem; margin-bottom: 1rem; color: #6c757d;"></i>
+                <h4>No Content Available Yet</h4>
+                <p>No sections or lessons have been added to this course.</p>
+            </div>
+        {% endif %}
+    {% endif %}
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add animation to progress bar
+        const progressFill = document.querySelector('.progress-fill');
+        if (progressFill) {
+            const originalWidth = progressFill.style.width;
+            progressFill.style.width = '0';
+
+            setTimeout(() => {
+                progressFill.style.width = originalWidth;
+            }, 300);
+        }
+
+        // Add smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    });
+</script>
+{% endblock %}

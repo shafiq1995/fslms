@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Cookie Policy - Future Skill{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <h1 class="mb-4">Cookie Policy</h1>
+  <p class="text-muted">Last updated: {{ now|date:"F d, Y" }}</p>
+
+  <h4 class="mt-4">1. What Are Cookies?</h4>
+  <p>Cookies are small text files stored on your device to keep you logged in, remember preferences, and help us improve the platform.</p>
+
+  <h4 class="mt-4">2. How We Use Cookies</h4>
+  <ul>
+    <li>Essential cookies: session/login, CSRF protection, load balancing.</li>
+    <li>Preference cookies: remember language, layout, or filters.</li>
+    <li>Analytics cookies: understand usage and improve performance (aggregated, not personal).</li>
+  </ul>
+
+  <h4 class="mt-4">3. Managing Cookies</h4>
+  <p>You can control cookies via your browser settings. Disabling essential cookies may affect site functionality (login, enrollment, payments).</p>
+
+  <h4 class="mt-4">4. Third-Party Cookies</h4>
+  <p>Some services (e.g., embedded video/meeting tools, analytics) may set their own cookies. Their policies apply.</p>
+
+  <h4 class="mt-4">5. Contact</h4>
+  <p>Email: support@futureskill.com | Phone: +1 (555) 123-4567</p>
+</div>
+{% endblock %}

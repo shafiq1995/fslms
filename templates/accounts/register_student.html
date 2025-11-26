@@ -1,0 +1,730 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Student Registration{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --student-primary: #3498db;
+        --student-primary-dark: #2980b9;
+        --student-secondary: #2c3e50;
+        --student-accent: #1abc9c;
+        --student-light: #f8f9fa;
+        --student-dark: #1a1a1a;
+        --student-gradient: linear-gradient(135deg, #3498db 0%, #1abc9c 100%);
+        --student-gradient-secondary: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        --student-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        --student-shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .student-register-container {
+        min-height: 100vh;
+        display: flex;
+        background: var(--student-light);
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Left Panel - Student Information */
+    .student-info-panel {
+        flex: 1;
+        background: var(--student-gradient-secondary);
+        color: white;
+        padding: 3rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .student-info-panel::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" opacity="0.05"><polygon fill="white" points="0,0 1000,1000 0,1000"/></svg>');
+        background-size: cover;
+    }
+
+    .student-info-content {
+        max-width: 500px;
+        position: relative;
+        z-index: 2;
+        animation: fadeInLeft 0.8s ease-out;
+    }
+
+    .student-logo {
+        margin-bottom: 2.5rem;
+    }
+
+    .student-logo a {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: white;
+        text-decoration: none;
+        letter-spacing: 1px;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .student-tagline {
+        font-size: 2.25rem;
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 1.5rem;
+    }
+
+    .student-description {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        line-height: 1.6;
+        margin-bottom: 2.5rem;
+    }
+
+    .student-features {
+        margin-bottom: 3rem;
+    }
+
+    .student-feature {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .student-feature-icon {
+        width: 50px;
+        height: 50px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        flex-shrink: 0;
+    }
+
+    .student-feature-text {
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+
+    .student-community {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.5rem;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        border-left: 4px solid var(--student-primary);
+    }
+
+    .student-community-icon {
+        font-size: 2rem;
+        color: #f39c12;
+    }
+
+    .student-community-text {
+        font-size: 0.95rem;
+        opacity: 0.9;
+    }
+
+    /* Right Panel - Registration Form */
+    .student-form-panel {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        position: relative;
+    }
+
+    .student-form-container {
+        max-width: 480px;
+        width: 100%;
+        animation: fadeInUp 0.8s ease-out;
+    }
+
+    .student-form-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .student-form-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: var(--student-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+    }
+
+    .student-form-subtitle {
+        color: var(--student-secondary);
+        font-size: 1.1rem;
+        opacity: 0.8;
+    }
+
+    .student-form-card {
+        background: white;
+        padding: 2.5rem;
+        border-radius: 20px;
+        box-shadow: var(--student-shadow-lg);
+        border: 1px solid rgba(52, 152, 219, 0.1);
+        position: relative;
+    }
+
+    .student-form-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--student-gradient);
+        border-radius: 20px 20px 0 0;
+    }
+
+    .alert {
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
+        border: none;
+        display: flex;
+        align-items: center;
+        font-weight: 500;
+    }
+
+    .alert-danger {
+        background: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+        border: 1px solid rgba(220, 53, 69, 0.2);
+    }
+
+    .alert-info {
+        background: rgba(52, 152, 219, 0.1);
+        color: var(--student-primary);
+        border: 1px solid rgba(52, 152, 219, 0.2);
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--student-secondary);
+        font-size: 0.95rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: .5rem .7rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: var(--student-light);
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: var(--student-primary);
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        background: white;
+    }
+
+    .form-text {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-top: 0.5rem;
+    }
+
+    .text-danger {
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+        display: block;
+    }
+
+    .btn-student-register {
+        width: 100%;
+        padding: 1rem 2rem;
+        background: var(--student-gradient);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        margin: 2rem 0 1.5rem;
+    }
+
+    .btn-student-register:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(52, 152, 219, 0.3);
+    }
+
+    .btn-student-register:active {
+        transform: translateY(0);
+    }
+
+    .student-login-link {
+        text-align: center;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .student-login-text {
+        color: var(--student-secondary);
+        font-size: 0.95rem;
+    }
+
+    .student-login-text a {
+        color: var(--student-primary);
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .student-login-text a:hover {
+        color: var(--student-primary-dark);
+        text-decoration: underline;
+    }
+
+    /* Floating Elements */
+    .floating-elements {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .floating-element {
+        position: absolute;
+        border-radius: 50%;
+        background: var(--student-gradient);
+        opacity: 0.1;
+        animation: float 6s ease-in-out infinite;
+    }
+
+    .floating-element:nth-child(1) {
+        width: 120px;
+        height: 120px;
+        top: 10%;
+        left: 10%;
+        animation-delay: 0s;
+    }
+
+    .floating-element:nth-child(2) {
+        width: 80px;
+        height: 80px;
+        top: 70%;
+        left: 80%;
+        animation-delay: 2s;
+    }
+
+    .floating-element:nth-child(3) {
+        width: 100px;
+        height: 100px;
+        top: 80%;
+        left: 15%;
+        animation-delay: 4s;
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes float {
+        0%, 100% {
+            transform: translateY(0) rotate(0deg);
+        }
+        50% {
+            transform: translateY(-20px) rotate(10deg);
+        }
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+        .student-register-container {
+            flex-direction: column;
+        }
+
+        .student-info-panel {
+            padding: 2rem;
+        }
+
+        .student-tagline {
+            font-size: 2rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .student-form-panel {
+            padding: 1rem;
+        }
+
+        .student-form-card {
+            padding: 2rem;
+        }
+
+        .student-info-panel {
+            padding: 1.5rem;
+        }
+
+        .student-tagline {
+            font-size: 1.75rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .student-form-card {
+            padding: 1.5rem;
+        }
+
+        .student-form-title {
+            font-size: 2rem;
+        }
+
+        .student-tagline {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+
+<div class="student-register-container">
+    <!-- Floating Elements -->
+    <div class="floating-elements">
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+        <div class="floating-element"></div>
+    </div>
+
+    <!-- Left Panel - Student Information -->
+    <div class="student-info-panel">
+        <div class="student-info-content">
+            <div class="student-logo">
+                <a href="{% url 'home:home' %}">
+                    <i class="bi bi-mortarboard"></i> Future Skill Student
+                </a>
+            </div>
+
+            <h1 class="student-tagline">Start Your Learning Journey Today</h1>
+            <p class="student-description">
+                Join thousands of students who are transforming their careers and lives through quality education.
+                Access expert-led courses, build in-demand skills, and achieve your professional goals.
+            </p>
+
+            <div class="student-features">
+                <div class="student-feature">
+                    <div class="student-feature-icon">
+                        <i class="bi bi-laptop"></i>
+                    </div>
+                    <div class="student-feature-text">
+                        <strong>Learn Anywhere</strong> - Access courses from any device, at your own pace and schedule
+                    </div>
+                </div>
+
+                <div class="student-feature">
+                    <div class="student-feature-icon">
+                        <i class="bi bi-award"></i>
+                    </div>
+                    <div class="student-feature-text">
+                        <strong>Earn Certificates</strong> - Get recognized for your achievements with industry-valued certifications
+                    </div>
+                </div>
+
+                <div class="student-feature">
+                    <div class="student-feature-icon">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <div class="student-feature-text">
+                        <strong>Expert Instructors</strong> - Learn from industry professionals and subject matter experts
+                    </div>
+                </div>
+
+                <div class="student-feature">
+                    <div class="student-feature-icon">
+                        <i class="bi bi-briefcase"></i>
+                    </div>
+                    <div class="student-feature-text">
+                        <strong>Career Advancement</strong> - Gain skills that employers are looking for in today's job market
+                    </div>
+                </div>
+            </div>
+
+            <div class="student-community">
+                <i class="bi bi-heart-fill student-community-icon"></i>
+                <div class="student-community-text">
+                    <strong>Join Our Community:</strong> 95% of our students report career growth within 6 months
+                    of completing their courses. Start your success story today!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Panel - Registration Form -->
+    <div class="student-form-panel">
+        <div class="student-form-container">
+            <div class="student-form-header">
+                <h1 class="student-form-title">
+                    <i class="bi bi-person-plus"></i> Student Registration
+                </h1>
+                <p class="student-form-subtitle">Create your free account and start learning</p>
+            </div>
+
+            <div class="student-form-card">
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags|default:'info' }}">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        <span>{{ message }}</span>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    {% if next %}
+                        <input type="hidden" name="next" value="{{ next }}">
+                    {% endif %}
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            {% for err in form.non_field_errors %}
+                                {{ err }}<br>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    {% for field in form %}
+                        <div class="form-group">
+                            <label for="{{ field.id_for_label }}" class="form-label">
+                                {{ field.label }}
+                            </label>
+                            {{ field }}
+                            {% if field.help_text %}
+                                <small class="form-text">{{ field.help_text }}</small>
+                            {% endif %}
+                            {% for error in field.errors %}
+                                <div class="text-danger">{{ error }}</div>
+                            {% endfor %}
+                            {% if field.name == "email" %}
+                            <div class="d-flex align-items-center gap-2 mt-2">
+                                <button type="button" id="send-code-btn" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-envelope"></i> Send verification code
+                                </button>
+                                <small id="code-status" class="text-muted"></small>
+                            </div>
+                            <div class="form-group mt-2">
+                                <label class="form-label" for="verification_code">Verification code</label>
+                                <input type="text" name="verification_code" id="verification_code" class="form-control" placeholder="Enter the 6-digit code" required>
+                            </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+
+                    <button type="submit" class="btn-student-register">
+                        <i class="bi bi-person-plus"></i> Create Student Account
+                    </button>
+                </form>
+
+                <div class="student-login-link">
+                    <p class="student-login-text">
+                        Already have an account? <a href="{% url 'accounts:login' %}{% if next %}?next={{ next }}{% endif %}">Login here</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const registerForm = document.querySelector('form');
+    const registerBtn = document.querySelector('.btn-student-register');
+    const sendCodeBtn = document.getElementById('send-code-btn');
+    const codeStatus = document.getElementById('code-status');
+    const emailInput = document.querySelector('input[name="email"]');
+
+    if (registerForm) {
+        registerForm.addEventListener('submit', function(e) {
+            if (registerBtn) {
+                const originalText = registerBtn.innerHTML;
+                registerBtn.innerHTML = '<i class="bi bi-arrow-repeat spinner"></i> Creating Account...';
+                registerBtn.disabled = true;
+
+                setTimeout(() => {
+                    registerBtn.innerHTML = originalText;
+                    registerBtn.disabled = false;
+                }, 5000);
+            }
+        });
+    }
+
+    // Add floating animation style
+    const style = document.createElement('style');
+    style.textContent = `
+        .spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Add input focus effects
+    const inputs = document.querySelectorAll('.form-control');
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            this.style.transform = 'translateY(-2px)';
+            this.style.boxShadow = '0 5px 15px rgba(52, 152, 219, 0.1)';
+        });
+
+        input.addEventListener('blur', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = 'none';
+        });
+    });
+
+    // Add password strength indicator (optional enhancement)
+    const passwordInput = document.querySelector('input[type="password"]');
+    if (passwordInput) {
+        passwordInput.addEventListener('input', function() {
+            const password = this.value;
+            let strength = 0;
+
+            if (password.length >= 8) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+            // Remove existing strength indicator
+            const existingIndicator = this.parentNode.querySelector('.password-strength');
+            if (existingIndicator) {
+                existingIndicator.remove();
+            }
+
+            if (password.length > 0) {
+                const indicator = document.createElement('div');
+                indicator.className = 'password-strength mt-2';
+
+                const strengthText = ['Very Weak', 'Weak', 'Medium', 'Strong', 'Very Strong'][strength];
+                const strengthColors = ['#dc3545', '#ffc107', '#fd7e14', '#20c997', '#198754'];
+
+                indicator.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small>Password Strength: <strong style="color: ${strengthColors[strength]}">${strengthText}</strong></small>
+                        <div class="d-flex gap-1">
+                            ${[1,2,3,4,5].map(i => `
+                                <div style="width: 20px; height: 4px; background: ${i <= strength ? strengthColors[strength] : '#e9ecef'}; border-radius: 2px;"></div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+
+                this.parentNode.appendChild(indicator);
+            }
+        });
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    if (sendCodeBtn && emailInput) {
+        sendCodeBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const email = emailInput.value.trim();
+            if (!email) {
+                codeStatus.textContent = 'Enter your email first.';
+                codeStatus.className = 'text-danger small';
+                return;
+            }
+            sendCodeBtn.disabled = true;
+            codeStatus.textContent = 'Sending...';
+            codeStatus.className = 'text-muted small';
+
+            fetch('{% url "accounts:send_email_code" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: new URLSearchParams({email})
+            }).then(resp => resp.json())
+              .then(data => {
+                if (data.success) {
+                    codeStatus.textContent = 'Verification code sent. Check your email.';
+                    codeStatus.className = 'text-success small';
+                } else {
+                    codeStatus.textContent = data.error || 'Could not send code.';
+                    codeStatus.className = 'text-danger small';
+                }
+              })
+              .catch(() => {
+                codeStatus.textContent = 'Could not send code.';
+                codeStatus.className = 'text-danger small';
+              })
+              .finally(() => {
+                setTimeout(() => { sendCodeBtn.disabled = false; }, 1500);
+              });
+        });
+    }
+});
+</script>
+{% endblock %}

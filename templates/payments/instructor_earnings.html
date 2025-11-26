@@ -1,0 +1,49 @@
+{# templates/payments/instructor_earnings.html #}
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Instructor Earnings{% endblock %}
+{% include "partials/header.html" %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'payments/css/payments.css' %}">
+
+<div class="container mt-4">
+  <h3>Instructor Earnings</h3>
+  <div class="mb-3">
+    <strong>Total Earnings:</strong> ${{ total_earnings }}
+  </div>
+
+  {% if payments %}
+  <div class="card">
+    <div class="card-body">
+      <table class="table">
+        <thead>
+          <tr><th>#</th><th>Course</th><th>Student</th><th>Amount</th><th>Status</th><th>Date</th></tr>
+        </thead>
+        <tbody>
+          {% for p in payments %}
+          <tr>
+            <td>{{ p.id }}</td>
+            <td>{{ p.course.title }}</td>
+            <td>{{ p.user.username }}</td>
+            <td>${{ p.amount }}</td>
+            <td>
+              {% if p.status == "Completed" %}
+                <span class="badge bg-success">Completed</span>
+              {% elif p.status == "Pending" %}
+                <span class="badge bg-warning text-dark">Pending</span>
+              {% else %}
+                <span class="badge bg-secondary">{{ p.status }}</span>
+              {% endif %}
+            </td>
+            <td>{{ p.created_at|date:"d M, Y" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% else %}
+  <p>No payments found for your courses yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

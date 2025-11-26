@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Terms of Service - Future Skill{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <h1 class="mb-4">Terms of Service</h1>
+  <p class="text-muted">Last updated: {{ now|date:"F d, Y" }}</p>
+
+  <h4 class="mt-4">1. Acceptance</h4>
+  <p>By creating an account or enrolling in a course, you agree to these terms and our Privacy Policy.</p>
+
+  <h4 class="mt-4">2. Accounts</h4>
+  <ul>
+    <li>You must provide accurate information and keep your account secure.</li>
+    <li>Admins may approve or reject instructor accounts; students must be approved for enrollment after payment verification.</li>
+    <li>You are responsible for all activity under your account.</li>
+  </ul>
+
+  <h4 class="mt-4">3. Courses & Certificates</h4>
+  <ul>
+    <li>Courses are instructor-led (live/offline). Instructors/admins track attendance and mark lessons complete.</li>
+    <li>Certificates are issued when required lessons are completed and progress reaches 100%.</li>
+    <li>Course content may change; we may update schedules or materials as needed.</li>
+  </ul>
+
+  <h4 class="mt-4">4. Payments & Refunds</h4>
+  <ul>
+    <li>Payments via supported providers (bKash, Nagad, bank, etc.) are subject to admin approval.</li>
+    <li>Refunds are case-by-case; if approved, enrollment may be revoked.</li>
+  </ul>
+
+  <h4 class="mt-4">5. Instructor Responsibilities</h4>
+  <ul>
+    <li>Provide accurate course info, schedules, and timely communication.</li>
+    <li>Mark lesson completion and attendance honestly; respect platform policies and learners’ data.</li>
+  </ul>
+
+  <h4 class="mt-4">6. Acceptable Use</h4>
+  <ul>
+    <li>No harassment, abuse, or sharing of illicit content.</li>
+    <li>No unauthorized redistribution of course materials or account sharing.</li>
+    <li>No attempts to disrupt or misuse the platform.</li>
+  </ul>
+
+  <h4 class="mt-4">7. Intellectual Property</h4>
+  <p>Courses, materials, and the platform are protected. You receive a limited, personal license to view and participate; you may not resell or redistribute without permission.</p>
+
+  <h4 class="mt-4">8. Disclaimer & Limitation of Liability</h4>
+  <p>Courses are provided “as is.” We do not guarantee specific outcomes. To the extent permitted by law, Future Skill is not liable for indirect or consequential damages.</p>
+
+  <h4 class="mt-4">9. Termination</h4>
+  <p>We may suspend or terminate accounts for violations of these terms or platform policies. Some terms survive termination (e.g., IP, liability limits).</p>
+
+  <h4 class="mt-4">10. Changes</h4>
+  <p>We may update these terms; continued use after changes means acceptance.</p>
+</div>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Instructor Applications{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h3 class="mb-4">Instructor Applications</h3>
+
+  {% if instructors %}
+    <div class="table-responsive">
+      <table class="table table-bordered align-middle">
+        <thead class="table-dark">
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Date Joined</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for instructor in instructors %}
+            <tr>
+              <td>{{ instructor.get_full_name|default:instructor.username }}</td>
+              <td>{{ instructor.email }}</td>
+              <td>{{ instructor.date_joined|date:"M d, Y" }}</td>
+              <td><span class="badge bg-warning text-dark">Pending</span></td>
+              <td>
+                <a href="#" class="btn btn-success btn-sm"><i class="bi bi-check2-circle"></i> Approve</a>
+                <a href="#" class="btn btn-danger btn-sm"><i class="bi bi-x-circle"></i> Reject</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p>No instructor applications pending review.</p>
+  {% endif %}
+</div>
+{% endblock %}

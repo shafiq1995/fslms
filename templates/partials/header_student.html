@@ -1,0 +1,34 @@
+{% load static %}
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center fw-bold" href="{% url 'home:home' %}">
+      <img src="{% static 'images/logo.png' %}" alt="Future Skill" height="36" class="me-2">
+      <span class="text-primary">Future Skill</span>
+    </a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#studentNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="studentNav">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item"><a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}" href="{% url 'student_tool:dashboard' %}"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'student_tool:dashboard' %}"><i class="bi bi-collection"></i> My Courses</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'courses:course_list' %}"><i class="bi bi-book"></i> Browse Courses</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'home:home' %}#instructors">Instructors</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'home:home' %}#blog">Blog</a></li>
+      </ul>
+
+      <ul class="navbar-nav ms-auto align-items-center">
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle fw-semibold" href="#" data-bs-toggle="dropdown">{{ request.user.get_full_name|default:request.user.username }}</a>
+          <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+            <li><a class="dropdown-item" href="{% url 'accounts:profile' %}"><i class="bi bi-person"></i> Profile</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>

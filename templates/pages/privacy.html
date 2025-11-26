@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Privacy Policy - Future Skill{% endblock %}
+{% block content %}
+<div class="container py-5">
+  <h1 class="mb-4">Privacy Policy</h1>
+  <p class="text-muted">Last updated: {{ now|date:"F d, Y" }}</p>
+
+  <h4 class="mt-4">1. Who We Are</h4>
+  <p>Future Skill (“we”, “us”, “our”) is a learning platform providing live and offline instructor-led courses. This policy explains how we collect, use, and protect your personal data.</p>
+
+  <h4 class="mt-4">2. Information We Collect</h4>
+  <ul>
+    <li>Account data: name, email, phone, profile info, role (student/instructor/admin).</li>
+    <li>Course data: enrollments, attendance, lesson completion, certificates.</li>
+    <li>Payment data: transaction IDs, provider, amount, status (we do not store full card/bank details).</li>
+    <li>Device/usage data: IP, browser, logs (for security and analytics).</li>
+  </ul>
+
+  <h4 class="mt-4">3. How We Use Data</h4>
+  <ul>
+    <li>Provide and improve courses, track progress, issue certificates.</li>
+    <li>Process payments and verify transactions.</li>
+    <li>Secure accounts, prevent fraud, and comply with legal obligations.</li>
+    <li>Send service emails (enrollment, schedule, payment status). Marketing emails only with consent.</li>
+  </ul>
+
+  <h4 class="mt-4">4. Sharing</h4>
+  <p>We do not sell personal data. Limited sharing with:</p>
+  <ul>
+    <li>Instructors (for enrolled students’ names, progress, attendance).</li>
+    <li>Payment processors (transaction verification).</li>
+    <li>Service providers (hosting, analytics) under confidentiality.</li>
+    <li>Legal authorities if required by law.</li>
+  </ul>
+
+  <h4 class="mt-4">5. Data Retention</h4>
+  <p>We retain account, enrollment, and certificate records as long as needed for service and legal purposes. Payment records are kept per compliance requirements.</p>
+
+  <h4 class="mt-4">6. Your Rights</h4>
+  <ul>
+    <li>Access, update, or delete your profile (subject to legal/record-keeping needs).</li>
+    <li>Opt-out of marketing emails.</li>
+    <li>Request a copy of your data or raise concerns via support.</li>
+  </ul>
+
+  <h4 class="mt-4">7. Security</h4>
+  <p>We use encryption in transit (HTTPS), access controls, and monitoring. No system is 100% secure; contact us immediately if you suspect unauthorized access.</p>
+
+  <h4 class="mt-4">8. Cookies</h4>
+  <p>We use essential and analytics cookies to keep you logged in, maintain sessions, and improve the platform. See our Cookie Policy for details.</p>
+
+  <h4 class="mt-4">9. Children</h4>
+  <p>Future Skill is for users 16+ (or local age of consent). Underage users require guardian consent where applicable.</p>
+
+  <h4 class="mt-4">10. Contact</h4>
+  <p>Email: support@futureskill.com | Phone: +1 (555) 123-4567</p>
+</div>
+{% endblock %}

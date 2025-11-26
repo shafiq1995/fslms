@@ -1,0 +1,200 @@
+{# templates/admin_tools/admin_dashboard.html #}
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Admin Dashboard{% endblock %}
+
+{# include admin header partial if you use it #}
+{% include "partials/header_admin.html" %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'admin_tools/css/admin_dashboard.css' %}">
+
+<div class="container-fluid admin-dashboard">
+  <div class="row mt-4">
+    <div class="col-12">
+      <h1 class="mb-3">Admin Dashboard</h1>
+    </div>
+  </div>
+
+  <!-- Stats cards -->
+  <div class="row g-3">
+    <div class="col-sm-6 col-md-3">
+      <div class="card stat-card">
+        <div class="card-body">
+          <h5 class="card-title">Total Users</h5>
+          <h3 class="stat-value">{{ total_users }}</h3>
+          <p class="text-muted mb-0">Students: {{ total_students }} • Instructors: {{ total_instructors }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-md-3">
+      <div class="card stat-card">
+        <div class="card-body">
+          <h5 class="card-title">Active Courses</h5>
+          <h3 class="stat-value">{{ active_courses }}</h3>
+          <p class="text-muted mb-0">Pending: {{ pending_courses }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-md-3">
+      <div class="card stat-card">
+        <div class="card-body">
+          <h5 class="card-title">Pending Payments</h5>
+          <h3 class="stat-value">{{ pending_payments }}</h3>
+          <p class="text-muted mb-0">Recent transactions shown below</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 col-md-3">
+      <div class="card stat-card">
+        <div class="card-body">
+          <h5 class="card-title">Revenue</h5>
+          <h3 class="stat-value">${{ total_revenue }}</h3>
+          <p class="text-muted mb-0">Certificates: {{ total_certificates }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pending approvals and quick actions -->
+  <div class="row mt-4 g-3">
+    <div class="col-lg-6">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <strong>Pending Instructor Requests</strong>
+          <a class="btn btn-sm btn-outline-primary" href="{% url 'admin_tools:dashboard' %}">View All</a>
+        </div>
+        <div class="card-body p-0">
+          <ul class="list-group list-group-flush">
+            {% for u in pending_instructors %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              <div>
+                <strong>{{ u.get_full_name|default:u.username }}</strong><br>
+                <small class="text-muted">{{ u.email }}</small>
+              </div>
+              <div class="text-end">
+                <small class="text-muted">{{ u.date_joined|date:"M d, Y" }}</small><br>
+                <a href="{% url 'admin_tools:dashboard' %}" class="btn btn-sm btn-success mt-1">Approve</a>
+              </div>
+            </li>
+            {% empty %}
+            <li class="list-group-item text-muted">No pending instructor requests</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <strong>Quick Actions</strong>
+          <small class="text-muted">Shortcuts</small>
+        </div>
+        <div class="card-body">
+          <div class="d-grid gap-2 d-md-flex">
+            <a class="btn btn-primary" href="{% url 'admin_tools:dashboard' %}">Manage Users</a>
+            <a class="btn btn-outline-primary" href="{% url 'admin_tools:dashboard' %}">Course Approval</a>
+            <a class="btn btn-outline-success" href="{% url 'admin_tools:dashboard' %}">Payments</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Courses & Payments -->
+  <div class="row mt-4 g-3">
+    <div class="col-lg-6">
+      <div class="card h-100">
+        <div class="card-header"><strong>Recent Courses</strong></div>
+        <div class="card-body">
+          <ul class="list-group">
+            {% for course in recent_courses %}
+            <li class="list-group-item d-flex align-items-center">
+              <img src="{{ course.thumbnail_url }}" alt="" class="rounded me-3" style="width:64px; height:48px; object-fit:cover;">
+              <div class="flex-grow-1">
+                <strong>{{ course.title }}</strong><br>
+                <small class="text-muted">{{ course.instructor.get_full_name|default:course.instructor.username }}</small>
+              </div>
+              <div class="text-end">
+                <small class="text-muted">{{ course.created_at|date:"d M, Y" }}</small>
+              </div>
+            </li>
+            {% empty %}
+            <li class="list-group-item text-muted">No recent courses</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card h-100">
+        <div class="card-header"><strong>Recent Payments</strong></div>
+        <div class="card-body p-0">
+          <table class="table mb-0">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>User</th>
+                <th>Course</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in recent_payments %}
+              <tr>
+                <td>{{ p.id }}</td>
+                <td>{{ p.user.username }}</td>
+                <td>{{ p.course.title }}</td>
+                <td>${{ p.amount }}</td>
+                <td>
+                  {% if p.status == 'Completed' %}
+                    <span class="badge bg-success">Completed</span>
+                  {% elif p.status == 'Pending' %}
+                    <span class="badge bg-warning text-dark">Pending</span>
+                  {% else %}
+                    <span class="badge bg-secondary">{{ p.status }}</span>
+                  {% endif %}
+                </td>
+                <td>{{ p.created_at|date:"d M, Y" }}</td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="6" class="text-center text-muted">No payments found</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Activity -->
+  <div class="row mt-4">
+    <div class="col-lg-12">
+      <div class="card">
+        <div class="card-header"><strong>Recent Activity</strong></div>
+        <div class="card-body">
+          <ul class="list-group list-group-flush">
+            {% for a in recent_activities %}
+            <li class="list-group-item d-flex justify-content-between">
+              <div>{{ a.message }}</div>
+              <small class="text-muted">{{ a.created_at|date:"M d, Y H:i" }}</small>
+            </li>
+            {% empty %}
+            <li class="list-group-item text-muted">No recent activity recorded.</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}

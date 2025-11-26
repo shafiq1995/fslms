@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% include "partials/header_admin.html" %}
+{% block title %}{{ action }} User{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <h4>{{ action }} User</h4>
+  <form method="post" class="card p-4 shadow-sm">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label>Username</label>
+      <input type="text" name="username" class="form-control" value="{{ user.username|default:'' }}" required>
+    </div>
+    <div class="mb-3">
+      <label>Email</label>
+      <input type="email" name="email" class="form-control" value="{{ user.email|default:'' }}">
+    </div>
+    <div class="mb-3">
+      <label>Role</label>
+      <select name="role" class="form-select">
+        <option value="student" {% if user.role == 'student' %}selected{% endif %}>Student</option>
+        <option value="instructor" {% if user.role == 'instructor' %}selected{% endif %}>Instructor</option>
+        <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+      </select>
+    </div>
+    {% if action == "Create" %}
+    <div class="mb-3">
+      <label>Password</label>
+      <input type="password" name="password" class="form-control" required>
+    </div>
+    {% else %}
+    <div class="form-check mb-3">
+      <input class="form-check-input" type="checkbox" name="is_active" {% if user.is_active %}checked{% endif %}>
+      <label class="form-check-label">Active</label>
+    </div>
+    {% endif %}
+    <button type="submit" class="btn btn-primary">{{ action }}</button>
+    <a href="{% url 'admin_tools:user_management_list' %}" class="btn btn-secondary">Cancel</a>
+  </form>
+</div>
+{% endblock %}

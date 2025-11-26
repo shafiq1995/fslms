@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Create Course{% endblock %}
+{% load static %}
+{% block content %}
+
+<div class="container mt-5" style="max-width: 700px;">
+  <h3 class="mb-4 fw-bold text-primary">Create New Course</h3>
+
+  <form method="post" enctype="multipart/form-data" id="courseForm">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <div class="mb-3">
+      {{ form.title.label_tag }}
+      {{ form.title }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.description.label_tag }}
+      {{ form.description }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.price.label_tag }}
+      {{ form.price }}
+    </div>
+
+    <div class="mb-3">
+      {{ form.category.label_tag }}
+      <div class="d-flex">
+        {{ form.category }}
+        <button type="button" class="btn btn-outline-primary ms-2" data-bs-toggle="modal" data-bs-target="#createCategoryModal">
+          + Create New
+        </button>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label for="id_thumbnail">Course Thumbnail</label><br>
+      {% if form.instance.thumbnail %}
+        <img src="{{ form.instance.thumbnail.url }}" alt="Current Thumbnail" class="img-thumbnail mb-2" style="max-width:200px;">
+      {% endif %}
+      {{ form.thumbnail }}
+    </div>
+
+    <button type="submit" class="btn btn-success w-100">Save Course</button>
+  </form>
+</div>
+
+<!-- =================== CREATE CATEGORY MODAL =================== -->
+<div class="modal fade" id="createCategoryModal" tabindex="-1" aria-labelledby="createCategoryLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 shadow">
+      <div class="modal-header">
+        <h5 class="modal-title fw-bold text-primary" id="createCategoryLabel">Create New Category</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <form id="categoryForm">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label">Category Name</label>
+            <input type="text" id="catName" name="name" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea id="catDesc" name="description" class="form-control" rows="3"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Slug (optional)</label>
+            <input type="text" id="catSlug" name="slug" class="form-control">
+          </div>
+          <div class="text-end">
+            <button type="submit" class="btn btn-primary">Create</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =================== JS =================== -->
+<script>
+document.getElementById("categoryForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+
+  const name = document.getElementById("catName").value;
+  const description = document.getElementById("catDesc").value;
+  const slug = document.getElementById("catSlug").value;
+  const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+  const response = await fetch("{% url 'courses:create_category_ajax' %}", {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": csrfToken,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ name, description, slug })
+  });
+
+  const data = await response.json();
+
+  if (data.success) {
+    const select = document.getElementById("id_category");
+    const newOption = new Option(data.category.name, data.category.id, true, true);
+    select.add(newOption);
+
+    // Close modal and reset form
+    const modal = bootstrap.Modal.getInstance(document.getElementById("createCategoryModal"));
+    modal.hide();
+    this.reset();
+  } else {
+    alert("Error: " + data.error);
+  }
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,6 @@
+.card {
+  border-radius: 12px;
+}
+.card-body h5 {
+  font-weight: 600;
+}

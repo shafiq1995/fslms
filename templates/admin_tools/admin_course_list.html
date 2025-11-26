@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Manage Courses{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3><i class="bi bi-journal-text"></i> Manage Courses</h3>
+  </div>
+
+  <div class="row g-2 mb-3">
+    <div class="col-md-3">
+      <div class="card shadow-sm border-0">
+        <div class="card-body py-2">
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="text-muted small">Total</span>
+            <span class="fw-bold">{{ status_counts.total }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card shadow-sm border-0">
+        <div class="card-body py-2">
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="text-muted small">Pending</span>
+            <span class="fw-bold text-warning">{{ status_counts.pending }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card shadow-sm border-0">
+        <div class="card-body py-2">
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="text-muted small">Published</span>
+            <span class="fw-bold text-success">{{ status_counts.published }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card shadow-sm border-0">
+        <div class="card-body py-2">
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="text-muted small">Rejected</span>
+            <span class="fw-bold text-danger">{{ status_counts.rejected }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <form method="get" class="row g-2 align-items-center mb-3">
+    <div class="col-md-6">
+      <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Search by title">
+    </div>
+    <div class="col-md-3">
+      <select name="status" class="form-select">
+        <option value="">All statuses</option>
+        <option value="pending" {% if status == "pending" %}selected{% endif %}>Pending</option>
+        <option value="approved" {% if status == "approved" %}selected{% endif %}>Approved</option>
+        <option value="rejected" {% if status == "rejected" %}selected{% endif %}>Rejected</option>
+        <option value="published" {% if status == "published" %}selected{% endif %}>Published</option>
+      </select>
+    </div>
+    <div class="col-md-3 text-end">
+      <button class="btn btn-primary"><i class="bi bi-funnel"></i> Filter</button>
+      <a href="{% url 'admin_tools:admin_course_list' %}" class="btn btn-secondary">Reset</a>
+    </div>
+  </form>
+
+  {% if courses %}
+  <form method="post" action="{% url 'admin_tools:bulk_course_action' %}">
+    {% csrf_token %}
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <div class="input-group" style="max-width: 420px;">
+        <select name="action" class="form-select">
+          <option value="">Bulk action</option>
+          <option value="approve">Approve</option>
+          <option value="reject">Reject</option>
+          <option value="archive">Archive</option>
+        </select>
+        <input type="text" name="note" class="form-control" placeholder="Optional note for reject/archive">
+        <button class="btn btn-primary" type="submit">Apply</button>
+      </div>
+      <small class="text-muted">Select courses to apply bulk action.</small>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover align-middle border shadow-sm">
+        <thead class="table-dark">
+          <tr>
+            <th style="width:40px;"><input type="checkbox" id="selectAll"></th>
+            <th>Thumbnail</th>
+            <th>Title</th>
+            <th>Instructor</th>
+            <th>Category</th>
+            <th>Status</th>
+            <th>Price</th>
+            <th>Created</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for course in courses %}
+          <tr id="course-row-{{ course.id }}">
+            <td><input type="checkbox" name="course_ids" value="{{ course.id }}"></td>
+            <td style="width:90px;">
+              {% if course.thumbnail %}
+                <img src="{{ course.thumbnail.url }}" class="rounded shadow-sm" width="70" height="45" alt="Thumbnail">
+              {% else %}
+                <img src="{% static 'images/default_course.jpg' %}" class="rounded shadow-sm" width="70" height="45" alt="Default">
+              {% endif %}
+            </td>
+
+            <td>{{ course.title }}</td>
+            <td>{{ course.instructor.get_full_name|default:course.instructor.username }}</td>
+
+            <td>
+              {% if course.category %}
+                {{ course.category.name }}
+              {% else %}
+                <em class="text-muted">No category</em>
+              {% endif %}
+            </td>
+
+            <td>
+              {% with course.status|lower as st %}
+                {% if st == 'approved' %}
+                  <span class="badge bg-success">Approved</span>
+                {% elif st == 'published' %}
+                  <span class="badge bg-success">Published</span>
+                {% elif st == 'pending' %}
+                  <span class="badge bg-warning text-dark">Pending</span>
+                {% elif st == 'rejected' %}
+                  <span class="badge bg-danger">Rejected</span>
+                {% elif st == 'archived' %}
+                  <span class="badge bg-secondary">Archived</span>
+                {% else %}
+                  <span class="badge bg-secondary">{{ course.status }}</span>
+                {% endif %}
+              {% endwith %}
+            </td>
+
+            <td>&#2547;{{ course.price }}</td>
+            <td>{{ course.created_at|date:"M d, Y" }}</td>
+            <td>
+              <a href="{% url 'courses:course_detail' course.id %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-eye"></i></a>
+              <a href="{% url 'courses:course_edit' course.id %}" class="btn btn-outline-success btn-sm"><i class="bi bi-pencil"></i></a>
+              {% if course.status == 'pending' or course.status == 'draft' or course.status == 'rejected' %}
+                <form method="post" action="{% url 'admin_tools:approve_course' course.id %}" class="d-inline admin-approve-form">
+                  {% csrf_token %}
+                  <button class="btn btn-outline-success btn-sm" title="Approve"><i class="bi bi-check2-circle"></i></button>
+                </form>
+              {% endif %}
+              {% if course.status == 'approved' %}
+                <form method="post" action="{% url 'admin_tools:publish_course' course.id %}" class="d-inline admin-approve-form">
+                  {% csrf_token %}
+                  <button class="btn btn-success btn-sm" title="Publish"><i class="bi bi-upload"></i></button>
+                </form>
+              {% endif %}
+              <form method="post" action="{% url 'admin_tools:reject_course' course.id %}" class="d-inline admin-reject-form">
+                {% csrf_token %}
+                <input type="hidden" name="note" value="">
+                <button class="btn btn-outline-danger btn-sm confirm-reject" title="Reject"><i class="bi bi-x-circle"></i></button>
+              </form>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="9" class="p-2">
+              <small class="text-muted">
+                Last Action:
+                {% with course.approval_logs.last as log %}
+                  {% if log %}
+                    {{ log.action|title }} by {{ log.admin }} on {{ log.timestamp|date:"M d, Y H:i" }}
+                    {% if log.reason %} — <em>Reason: {{ log.reason }}</em>{% endif %}
+                  {% else %}
+                    <em>No actions yet</em>
+                  {% endif %}
+                {% endwith %}
+              </small>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </form>
+  {% if courses.has_other_pages %}
+  <div class="mt-3">
+    <ul class="pagination justify-content-center">
+      {% if courses.has_previous %}
+        <li class="page-item"><a class="page-link" href="?{% if q %}q={{ q }}&{% endif %}{% if status %}status={{ status }}&{% endif %}page={{ courses.previous_page_number }}">Previous</a></li>
+      {% else %}
+        <li class="page-item disabled"><span class="page-link">Previous</span></li>
+      {% endif %}
+      <li class="page-item disabled"><span class="page-link">Page {{ courses.number }} of {{ courses.paginator.num_pages }}</span></li>
+      {% if courses.has_next %}
+        <li class="page-item"><a class="page-link" href="?{% if q %}q={{ q }}&{% endif %}{% if status %}status={{ status }}&{% endif %}page={{ courses.next_page_number }}">Next</a></li>
+      {% else %}
+        <li class="page-item disabled"><span class="page-link">Next</span></li>
+      {% endif %}
+    </ul>
+  </div>
+  {% endif %}
+  {% else %}
+  <div class="alert alert-info">No courses found.</div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".confirm-reject").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      const note = prompt("Reject this course? Optional reason:");
+      if (note === null) {
+        e.preventDefault();
+        return;
+      }
+      const form = e.target.closest("form");
+      if (form && form.querySelector("input[name='note']")) {
+        form.querySelector("input[name='note']").value = note || "";
+      }
+    });
+  });
+  document.querySelectorAll(".admin-approve-form button").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      if (!confirm("Approve this course?")) {
+        e.preventDefault();
+      }
+    });
+  });
+  const selectAll = document.getElementById("selectAll");
+  if (selectAll) {
+    selectAll.addEventListener("change", (e) => {
+      document.querySelectorAll("input[name='course_ids']").forEach(cb => cb.checked = selectAll.checked);
+    });
+  }
+});
+</script>
+{% endblock %}

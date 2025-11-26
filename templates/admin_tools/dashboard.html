@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Welcome, {{ request.user.username }}</h2>
+  <p class="text-muted">Here’s an overview of the system:</p>
+
+  <div class="row mt-4">
+    <div class="col-md-3 mb-3">
+      <div class="card shadow-sm text-center p-3">
+        <h5>Total Users</h5>
+        <h3>{{ total_users }}</h3>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card shadow-sm text-center p-3">
+        <h5>Instructors</h5>
+        <h3>{{ total_instructors }}</h3>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card shadow-sm text-center p-3">
+        <h5>Students</h5>
+        <h3>{{ total_students }}</h3>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="card shadow-sm text-center p-3">
+        <h5>Courses</h5>
+        <h3>{{ total_courses }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-md-12">
+      <div class="card shadow-sm p-3">
+        <h5>Total Payments</h5>
+        <h4>{{ total_payments }}</h4>
+      </div>
+    </div>
+  </div>
+
+  <div class="text-end mt-4">
+    <a href="{% url 'admin_tools:logout' %}" class="btn btn-outline-danger">Logout</a>
+  </div>
+</div>
+{% endblock %}

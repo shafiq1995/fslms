@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{% if is_edit %}Edit Blog{% else %}Create Blog{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold">{% if is_edit %}Edit Blog{% else %}Create Blog{% endif %}</h3>
+    <a href="{% url 'admin_tools:blog_admin_list' %}" class="btn btn-outline-secondary">Back to Blogs</a>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row g-3">
+          <div class="col-md-12">
+            <label class="form-label">Title</label>
+            {{ form.title }}
+          </div>
+          <div class="col-md-12">
+            <label class="form-label">Excerpt</label>
+            {{ form.excerpt }}
+          </div>
+          <div class="col-md-12">
+            <label class="form-label">Content</label>
+            <div class="mb-2 d-flex flex-wrap gap-2">
+              <button type="button" class="btn btn-sm btn-outline-secondary rich-btn" data-cmd="bold"><i class="bi bi-type-bold"></i></button>
+              <button type="button" class="btn btn-sm btn-outline-secondary rich-btn" data-cmd="italic"><i class="bi bi-type-italic"></i></button>
+              <button type="button" class="btn btn-sm btn-outline-secondary rich-btn" data-cmd="underline"><i class="bi bi-type-underline"></i></button>
+              <button type="button" class="btn btn-sm btn-outline-secondary rich-btn" data-cmd="insertUnorderedList"><i class="bi bi-list-ul"></i></button>
+              <button type="button" class="btn btn-sm btn-outline-secondary rich-btn" data-cmd="insertOrderedList"><i class="bi bi-list-ol"></i></button>
+            </div>
+            <div id="richEditor" class="form-control" style="min-height: 260px; overflow:auto;" contenteditable="true">{{ form.content.value|safe }}</div>
+            <textarea id="contentField" name="content" class="d-none">{{ form.content.value|safe }}</textarea>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Cover Image</label>
+            {{ form.cover_image }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Category</label>
+            {{ form.category }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Tags</label>
+            {{ form.tags }}
+          </div>
+          <div class="col-md-6">
+            <div class="form-check mt-4">
+              {{ form.published }}
+              <label class="form-check-label">Published</label>
+            </div>
+            <div class="form-check">
+              {{ form.is_featured }}
+              <label class="form-check-label">Featured</label>
+            </div>
+          </div>
+        </div>
+        <div class="mt-4">
+          <button type="submit" class="btn btn-primary">{% if is_edit %}Update{% else %}Create{% endif %}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const editor = document.getElementById("richEditor");
+  const textarea = document.getElementById("contentField");
+
+  if (editor && textarea) {
+    editor.addEventListener("input", () => {
+      textarea.value = editor.innerHTML;
+    });
+    // Initialize
+    textarea.value = editor.innerHTML;
+  }
+
+  document.querySelectorAll(".rich-btn").forEach(btn => {
+    btn.addEventListener("click", function(e) {
+      e.preventDefault();
+      const cmd = this.dataset.cmd;
+      document.execCommand(cmd, false, null);
+      if (editor && textarea) textarea.value = editor.innerHTML;
+    });
+  });
+});
+</script>
+{% endblock %}
