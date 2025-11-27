@@ -102,16 +102,26 @@ def _env_bool(name, default=False):
     return value.lower() in {"true", "1", "yes", "on"}
 
 
-EMAIL_BACKEND = os.getenv(
-    "EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend"
-)
-EMAIL_HOST = os.getenv("EMAIL_HOST", "")
+EMAIL_BACKEND = os.getenv("EMAIL_BACKEND")
+running_on_heroku = bool(os.getenv("DYNO"))
+
+if not EMAIL_BACKEND:
+    if running_on_heroku:
+        EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+    else:
+        EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+# Use sensible defaults for common SMTP providers but prefer env overrides.
+EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com" if running_on_heroku else "")
 EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
 EMAIL_USE_TLS = _env_bool("EMAIL_USE_TLS", True)
 EMAIL_USE_SSL = _env_bool("EMAIL_USE_SSL", False)
-DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER or "futureskill100@gmail.com")
+
+DEFAULT_FROM_EMAIL = os.getenv(
+    "DEFAULT_FROM_EMAIL", EMAIL_HOST_USER or "futureskill100@gmail.com"
+)
 
 AUTH_USER_MODEL = "accounts.User"
 
