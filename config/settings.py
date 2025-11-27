@@ -95,36 +95,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 AUTH_USER_MODEL = 'accounts.User'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-def _env_bool(name, default=False):
-    value = os.getenv(name)
-    if value is None:
-        return default
-    return value.lower() in {"true", "1", "yes", "on"}
-
-
-EMAIL_BACKEND = os.getenv("EMAIL_BACKEND")
-running_on_heroku = bool(os.getenv("DYNO"))
-
-if not EMAIL_BACKEND:
-    if running_on_heroku:
-        EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-    else:
-        EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-
-# Use sensible defaults for common SMTP providers but prefer env overrides.
-EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com" if running_on_heroku else "")
-EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
-EMAIL_USE_TLS = _env_bool("EMAIL_USE_TLS", True)
-EMAIL_USE_SSL = _env_bool("EMAIL_USE_SSL", False)
-
-DEFAULT_FROM_EMAIL = os.getenv(
-    "DEFAULT_FROM_EMAIL", EMAIL_HOST_USER or "futureskill100@gmail.com"
-)
-
-AUTH_USER_MODEL = "accounts.User"
-
 LOGIN_URL = "accounts:login"
 LOGIN_REDIRECT_URL = "accounts:profile_redirect"
 LOGOUT_REDIRECT_URL = "accounts:login"
@@ -138,6 +108,32 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 django_heroku.settings(locals())
 
 
-if 'DYNO' in os.environ:
-    import django_heroku
-    django_heroku.settings(locals())
+def _env_bool(name, default=False):
+    value = os.getenv(name)
+    if value is None:
+        return default
+    return value.lower() in {"true", "1", "yes", "on"}
+
+
+running_on_heroku = bool(os.getenv("DYNO"))
+EMAIL_BACKEND = os.getenv("EMAIL_BACKEND")
+
+if not EMAIL_BACKEND:
+    EMAIL_BACKEND = (
+        "django.core.mail.backends.smtp.EmailBackend"
+        if running_on_heroku
+        else "django.core.mail.backends.console.EmailBackend"
+    )
+
+# Use sensible defaults for common SMTP providers but prefer env overrides.
+default_host = "smtp.gmail.com" if running_on_heroku else ""
+EMAIL_HOST = os.getenv("EMAIL_HOST", default_host)
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
+EMAIL_USE_TLS = _env_bool("EMAIL_USE_TLS", True)
+EMAIL_USE_SSL = _env_bool("EMAIL_USE_SSL", False)
+
+DEFAULT_FROM_EMAIL = os.getenv(
+    "DEFAULT_FROM_EMAIL", EMAIL_HOST_USER or "futureskill100@gmail.com"
+)
