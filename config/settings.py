@@ -135,5 +135,5 @@ EMAIL_USE_TLS = _env_bool("EMAIL_USE_TLS", True)
 EMAIL_USE_SSL = _env_bool("EMAIL_USE_SSL", False)
 
 DEFAULT_FROM_EMAIL = os.getenv(
-    "DEFAULT_FROM_EMAIL", EMAIL_HOST_USER or "futureskill100@gmail.com"
+    "DEFAULT_FROM_EMAIL", DEFAULT_FROM_EMAIL or "futureskill100@gmail.com"
 )
