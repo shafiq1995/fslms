@@ -89,15 +89,55 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR,'static')
 STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = os.path.join(BASE_DIR,'static')
+STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 AUTH_USER_MODEL = 'accounts.User'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+DEFAULT_FROM_EMAIL = "futureskill100@gmail.com"
+
+AUTH_USER_MODEL = "accounts.User"
+
+<<<<<<< ours
+<<<<<<< ours
+=======
+SENDGRID_USERNAME = os.getenv("SENDGRID_USERNAME")
+SENDGRID_PASSWORD = os.getenv("SENDGRID_PASSWORD")
+EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.sendgrid.net")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", 587))
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER") or SENDGRID_USERNAME or "apikey"
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD") or SENDGRID_PASSWORD or os.getenv("SENDGRID_API_KEY", "")
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True").lower() in {"true", "1", "yes"}
+EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", "False").lower() in {"true", "1", "yes"}
+EMAIL_BACKEND = os.getenv("EMAIL_BACKEND") or (
+    "django.core.mail.backends.smtp.EmailBackend"
+    if os.getenv("DYNO") or EMAIL_HOST_PASSWORD
+    else "django.core.mail.backends.console.EmailBackend"
+)
+DEFAULT_FROM_EMAIL = os.getenv(
+    "DEFAULT_FROM_EMAIL",
+    EMAIL_HOST_USER or "futureskill100@gmail.com",
+)
+=======
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+DEFAULT_FROM_EMAIL = "futureskill100@gmail.com"
+
+AUTH_USER_MODEL = "accounts.User"
+>>>>>>> theirs
+
+>>>>>>> theirs
 LOGIN_URL = "accounts:login"
 LOGIN_REDIRECT_URL = "accounts:profile_redirect"
 LOGOUT_REDIRECT_URL = "accounts:login"
+
+
+STATICFILES_DIRS = [os.path.join(BASE_DIR,'src/static')
+]
+
 
 
 STATICFILES_DIRS = [os.path.join(BASE_DIR,'src/static')
@@ -108,6 +148,10 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 django_heroku.settings(locals())
 
 
+django_heroku.settings(locals())
+
+
+<<<<<<< ours
 def _env_bool(name, default=False):
     value = os.getenv(name)
     if value is None:
@@ -138,3 +182,13 @@ DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "")
 DEFAULT_FROM_EMAIL = os.getenv(
     "DEFAULT_FROM_EMAIL", DEFAULT_FROM_EMAIL or "futureskill100@gmail.com"
 )
+=======
+if 'DYNO' in os.environ:
+    import django_heroku
+<<<<<<< ours
+    django_heroku.settings(locals())
+>>>>>>> theirs
+=======
+    import django_heroku
+    django_heroku.settings(locals())
+>>>>>>> theirs
